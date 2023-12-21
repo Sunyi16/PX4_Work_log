@@ -1,0 +1,12 @@
+menuconfig MODULES_STEERING_ENGINE
+	bool "steering_engine"
+	default n
+	---help---
+		Enable support for steering_engine
+
+menuconfig USER_STEERING_ENGINE
+	bool "steering_engine running as userspace module"
+	default y
+	depends on BOARD_PROTECTED && MODULES_STEERING_ENGINE
+	---help---
+		Put steering_engine in userspace memory
