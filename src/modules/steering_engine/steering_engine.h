@@ -16,6 +16,7 @@
 #include <uORB/Publication.hpp>
 #include <uORB/Subscription.hpp>
 #include <uORB/topics/parameter_update.h>
+#include <drivers/drv_pwm_output.h>
 
 __BEGIN_DECLS
 
@@ -45,6 +46,7 @@ private:
 	/*Define a param to set the pwm value*/
 	DEFINE_PARAMETERS(
 	(ParamInt<px4::params::PWM_VALUE>) _param_pwm_value
+
 
 	)
 };
