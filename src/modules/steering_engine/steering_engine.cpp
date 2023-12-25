@@ -82,7 +82,7 @@ void Steering_engine::run()
 		_actuators2.timestamp = hrt_absolute_time();
 		_actuators2_set.publish(_actuators2);
 		PX4_INFO("runing");
-		up_pwm_servo_set(9,Pwm_value);
+		//up_pwm_servo_set(0,Pwm_value);
 	}
 }
 
