@@ -4,5 +4,4 @@ Mixer for test
 # AUX1-control by the param of PWM_VALUE
 
 M: 1
-O：	10000	10000     0 - 10000  10000
 S: 2 4  10000  10000      0 -10000  10000
