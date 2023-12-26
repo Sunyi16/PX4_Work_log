@@ -117,7 +117,7 @@ int up_pwm_servo_init(uint32_t channel_mask)
 void up_pwm_servo_deinit(uint32_t channel_mask)
 {
 	/* disable the timers */
-	up_pwm_servo_arm(false, channel_mask);
+	up_pwm_servo_arm(true, channel_mask);
 }
 
 int up_pwm_servo_set_rate_group_update(unsigned channel, unsigned rate)

@@ -61,7 +61,7 @@ parameters:
             unit: us
             min: 0
             max: 2200
-            default: 1500
+            default: 1000
 
         PWM_AUX_TRIM${i}:
             description:

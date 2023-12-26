@@ -406,7 +406,7 @@ bool PWMOut::update_pwm_out_state(bool on)
 	}
 
 	_require_arming[_instance].store(false);
-	up_pwm_servo_arm(on, _pwm_mask);
+	up_pwm_servo_arm(1, _pwm_mask);
 	return true;
 }
 

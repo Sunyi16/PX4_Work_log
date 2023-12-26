@@ -1569,7 +1569,7 @@ int PX4IO::ioctl(file *filep, int cmd, unsigned long arg)
 			break;
 		}
 
-	case PWM_SERVO_GET_DISARMED_PWM: {
+/* 	case PWM_SERVO_GET_DISARMED_PWM: {
 			PX4_DEBUG("PWM_SERVO_GET_DISARMED_PWM");
 			struct pwm_output_values *pwm = (struct pwm_output_values *)arg;
 			pwm->channel_count = _max_actuators;
@@ -1579,7 +1579,7 @@ int PX4IO::ioctl(file *filep, int cmd, unsigned long arg)
 			}
 
 			break;
-		}
+		} */
 
 	case PWM_SERVO_SET_MIN_PWM: {
 			PX4_DEBUG("PWM_SERVO_SET_MIN_PWM");

@@ -183,7 +183,7 @@ void LinuxPWMOut::update_params()
 
 		param_get(param_find("PWM_AUX_MIN"), &pwm_min_default);
 		param_get(param_find("PWM_AUX_MAX"), &pwm_max_default);
-		param_get(param_find("PWM_AUX_DISARM"), &pwm_disarmed_default);
+		//param_get(param_find("PWM_AUX_DISARM"), &pwm_disarmed_default);
 
 	} else if (_class_instance == CLASS_DEVICE_TERTIARY) {
 		prefix = "PWM_EXTRA";

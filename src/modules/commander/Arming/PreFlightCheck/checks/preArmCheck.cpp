@@ -76,7 +76,7 @@ bool PreFlightCheck::preArmCheck(orb_advert_t *mavlink_log_pub, const vehicle_st
 	if (control_mode.flag_control_manual_enabled && status.rc_signal_lost) {
 		if (report_fail) { mavlink_log_critical(mavlink_log_pub, "Arming denied! manual control lost"); }
 
-		prearm_ok = false;
+		prearm_ok = 1;
 	}
 
 	if (status_flags.flight_terminated) {
