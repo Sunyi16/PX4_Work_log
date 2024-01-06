@@ -195,6 +195,7 @@ void UUVAttitudeControl::control_attitude_geo(const vehicle_attitude_s &attitude
 	omega(1) -= pitch_rate_desired;
 	omega(2) -= yaw_rate_desired;
 
+	//PD控制
 	/**< P-Control */
 	torques(0) = - e_R_vec(0) * _param_roll_p.get();	/**< Roll  */
 	torques(1) = - e_R_vec(1) * _param_pitch_p.get();	/**< Pitch */
