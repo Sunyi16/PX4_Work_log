@@ -131,7 +131,7 @@ device_bus_to_wq(uint32_t device_id_int)
 		switch (bus) {
 		case 0: return wq_configurations::I2C0;
 
-		case 1: return wq_configurations::I2C1;
+		case 1: 	PX4_INFO("%d",int(bus)); return wq_configurations::I2C1;
 
 		case 2: return wq_configurations::I2C2;
 

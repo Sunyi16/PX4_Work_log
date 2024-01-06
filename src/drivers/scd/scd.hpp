@@ -14,7 +14,7 @@
 #include <uORB/topics/scd.h>
 
 static constexpr uint32_t I2C_SPEED = 100 * 1000; // 传输速度
-static constexpr uint8_t I2C_ADDRESS_DEFAULT = 0x31; //设备地址
+static constexpr uint8_t I2C_ADDRESS_DEFAULT = 0x1e; //设备地址0x31
 
 #define READ_CMD	uint8_t(0xec05)	//读数据之前要发送的命令
 

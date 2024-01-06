@@ -611,12 +611,16 @@ int I2CSPIDriverBase::module_start(const BusCLIArguments &cli, BusInstanceIterat
 		switch (iterator.busType()) {
 #if defined(CONFIG_I2C)
 
-		case BOARD_I2C_BUS: device_id.devid_s.bus_type = device::Device::DeviceBusType_I2C; break;
+		case BOARD_I2C_BUS: device_id.devid_s.bus_type = device::Device::DeviceBusType_I2C;
+
+		break;
 #endif // CONFIG_I2C
 
 #if defined(CONFIG_SPI)
 
-		case BOARD_SPI_BUS: device_id.devid_s.bus_type = device::Device::DeviceBusType_SPI; break;
+		case BOARD_SPI_BUS: device_id.devid_s.bus_type = device::Device::DeviceBusType_SPI;
+			//PX4_INFO("58");
+		break;
 #endif // CONFIG_SPI
 
 		case BOARD_INVALID_BUS: device_id.devid_s.bus_type = device::Device::DeviceBusType_UNKNOWN; break;
@@ -624,8 +628,10 @@ int I2CSPIDriverBase::module_start(const BusCLIArguments &cli, BusInstanceIterat
 
 
 		const px4::wq_config_t &wq_config = px4::device_bus_to_wq(device_id.devid);
+		//PX4_INFO("57");
 		I2CSPIDriverConfig driver_config{cli, iterator, wq_config};
 		const int runtime_instance = iterator.runningInstancesCount();
+		//PX4_INFO("58");
 		I2CSPIDriverInitializing initializer_data{driver_config, instantiate, runtime_instance};
 		// initialize the object and bus on the work queue thread - this will also probe for the device
 		px4::WorkItemSingleShot initializer(wq_config, initializer_trampoline, &initializer_data);
@@ -635,9 +641,10 @@ int I2CSPIDriverBase::module_start(const BusCLIArguments &cli, BusInstanceIterat
 
 		if (!instance) {
 			PX4_DEBUG("instantiate failed (no device on bus %i (devid 0x%x)?)", iterator.bus(), iterator.devid());
+			PX4_INFO("59");
 			continue;
 		}
-
+		PX4_INFO("here");
 #if defined(CONFIG_I2C)
 
 		if (cli.i2c_address != 0 && instance->_i2c_address == 0) {
@@ -676,7 +683,7 @@ int I2CSPIDriverBase::module_start(const BusCLIArguments &cli, BusInstanceIterat
 
 		case BOARD_SPI_BUS:
 			PX4_INFO_RAW("%s #%i on SPI bus %d", instance->ItemName(), runtime_instance, iterator.bus());
-
+	PX4_INFO("57");
 			if (iterator.external()) {
 				PX4_INFO_RAW(" (external, equal to '-b %i')", iterator.externalBusIndex());
 			}
@@ -700,13 +707,12 @@ int I2CSPIDriverBase::module_start(const BusCLIArguments &cli, BusInstanceIterat
 
 		if (iterator.external()) {
 			PX4_WARN("%s: %s", px4_get_taskname(), no_instance_started);
-
 		} else {
 			PX4_ERR("%s: %s", px4_get_taskname(), no_instance_started);
+
 		}
 
 #if defined(CONFIG_I2C)
-
 		if (iterator.busType() == BOARD_I2C_BUS && cli.i2c_address == 0) {
 			PX4_ERR("%s: driver does not set i2c address", px4_get_taskname());
 		}

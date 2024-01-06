@@ -126,6 +126,9 @@ then
 	ets_airspeed start -X
 fi
 
+#开启自定义外部I2C
+	#scd start -X
+
 # Sensirion SDP3X differential pressure sensor external I2C
 if param compare -s SENS_EN_SDP3X 1
 then

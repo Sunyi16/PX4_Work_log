@@ -130,13 +130,13 @@ void Scd::RunImpl()
 	}
 
 	/* measurement phase */
-	ret = measure();
+/* 	ret = measure();
 
 	if (OK != ret) {
 		DEVICE_DEBUG("measure error");
 	}
 
-	_sensor_ok = (ret == OK);
+	_sensor_ok = (ret == OK); */
 
 	/* next phase is collection */
 	_collect_phase = true;
