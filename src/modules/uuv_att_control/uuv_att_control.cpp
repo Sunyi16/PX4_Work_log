@@ -301,6 +301,7 @@ void UUVAttitudeControl::Run()
 	perf_end(_loop_perf);
 }
 
+//力矩发布
 void UUVAttitudeControl::publishTorqueSetpoint(const hrt_abstime &timestamp_sample)
 {
 	vehicle_torque_setpoint_s v_torque_sp = {};
@@ -313,6 +314,7 @@ void UUVAttitudeControl::publishTorqueSetpoint(const hrt_abstime &timestamp_samp
 	_vehicle_torque_setpoint_pub.publish(v_torque_sp);
 }
 
+//推力发布
 void UUVAttitudeControl::publishThrustSetpoint(const hrt_abstime &timestamp_sample)
 {
 	vehicle_thrust_setpoint_s v_thrust_sp = {};

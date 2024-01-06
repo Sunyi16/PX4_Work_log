@@ -109,6 +109,7 @@ void UUVPOSControl::publish_attitude_setpoint(const float thrust_x, const float 
 	_att_sp_pub.publish(vehicle_attitude_setpoint);
 }
 
+//位置模式下的控制流程，x/y/z均为PD控制
 void UUVPOSControl::pose_controller_6dof(const float x_pos_des, const float y_pos_des, const float z_pos_des,
 		const float roll_des, const float pitch_des, const float yaw_des,
 		vehicle_attitude_s &vehicle_attitude, vehicle_local_position_s &vlocal_pos)
@@ -116,7 +117,7 @@ void UUVPOSControl::pose_controller_6dof(const float x_pos_des, const float y_po
 	//get current rotation of vehicle
 	Quatf q_att(vehicle_attitude.q);
 	Vector3f pos_des = Vector3f(x_pos_des, y_pos_des, z_pos_des);
-
+	//PD控制输出
 	Vector3f p_control_output = Vector3f(_param_pose_gain_x.get() * (pos_des(0) - vlocal_pos.x) - _param_pose_gain_d_x.get()
 					     * vlocal_pos.vx,
 					     _param_pose_gain_y.get() * (pos_des(1) - vlocal_pos.y) - _param_pose_gain_d_y.get() * vlocal_pos.vy,
@@ -131,6 +132,7 @@ void UUVPOSControl::pose_controller_6dof(const float x_pos_des, const float y_po
 
 }
 
+//自稳模式下，z轴为比例控制，x/y方向没有位置控制
 void UUVPOSControl::stabilization_controller_6dof(const float x_pos_des, const float y_pos_des, const float z_pos_des,
 		const float roll_des, const float pitch_des, const float yaw_des,
 		vehicle_attitude_s &vehicle_attitude, vehicle_local_position_s &vlocal_pos)
@@ -139,6 +141,7 @@ void UUVPOSControl::stabilization_controller_6dof(const float x_pos_des, const f
 	Quatf q_att(vehicle_attitude.q);
 	Vector3f pos_des = Vector3f(0, 0, z_pos_des);
 
+	//自稳状态下的控制输出
 	Vector3f p_control_output = Vector3f(0,
 					     0,
 					     _param_pose_gain_z.get() * (pos_des(2) - vlocal_pos.z));
