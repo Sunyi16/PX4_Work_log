@@ -163,7 +163,16 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt,
 	Quatf q_sp_rpy = AxisAnglef(v(0), v(1), 0.f);
 	Eulerf euler_sp = q_sp_rpy;
 	attitude_setpoint.roll_body = euler_sp(0);
-	attitude_setpoint.pitch_body = euler_sp(1);
+
+	//pitch姿态的期望改为遥控遥感的映射，40度的极限值
+	pitch_setpoint = 80 * Pi * _manual_control_setpoint.aux1 / 360;
+	attitude_setpoint.pitch_body = pitch_setpoint;
+
+	//遥控输入到舵机输出映射，保证pitch
+	servo_setpoint = (pitch_setpoint / (_param_servo_range.get() / 2000)-1500)/500;
+
+	actuator2.control[5] = servo_setpoint;
+
 	// The axis angle can change the yaw as well (noticeable at higher tilt angles).
 	// This is the formula by how much the yaw changes:
 	//   let a := tilt angle, b := atan(y/x) (direction of maximum tilt)

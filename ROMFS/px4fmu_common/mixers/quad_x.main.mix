@@ -1,16 +1,18 @@
 R: 4x
 
-AUX1 Passthrough
+serve1
+M: 1
+S: 2 1  10000  10000      0 -10000  10000
+
+serve2
+M: 1
+S: 2 2  10000  10000      0 -10000  10000
+
+serve3
+M: 1
+S: 2 3  10000  10000      0 -10000  10000
+
+serve4
 M: 1
 S: 2 4  10000  10000      0 -10000  10000
 
-AUX2 Passthrough
-M: 1
-S: 2 4  10000  10000      0 -10000  10000
-
-Failsafe outputs
-The following outputs are set to their disarmed value
-during normal operation and to their failsafe falue in case
-of flight termination.
-Z:
-Z:

@@ -207,6 +207,9 @@ void PositionControl::_accelerationControl()
 	_thr_sp = body_z * collective_thrust;
 }
 
+
+
+
 bool PositionControl::_inputValid()
 {
 	bool valid = true;

@@ -178,6 +178,8 @@ public:
 	 */
 	void getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint) const;
 
+	void y_acceleration_control_servo(const float dt);
+
 private:
 	bool _inputValid();
 
