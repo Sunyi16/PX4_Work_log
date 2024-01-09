@@ -62,7 +62,8 @@
 
 using namespace time_literals;
 
-#define Pi acos(-1)
+#define Pi 3.1415
+#define _man_tilt_pitch 0.698 //40度最大pitch偏转
 
 /**
  * Multicopter attitude control app start / stop handling function
@@ -101,6 +102,10 @@ private:
 	 * Generate & publish an attitude setpoint from stick inputs
 	 */
 	void		generate_attitude_setpoint(const matrix::Quatf &q, float dt, bool reset_yaw_sp);
+
+	void		servo_pub();	//发布servo输出
+
+	float		abs_f(float value);
 
 	AttitudeControl _attitude_control; ///< class for attitude control calculations
 
@@ -146,7 +151,7 @@ private:
 	/*自定义变量*/
 	float pitch_setpoint;
 	float servo_setpoint;
-	actuator_controls_s actuator2;
+	struct actuator_controls_s actuator2;
 
 	DEFINE_PARAMETERS(
 		(ParamFloat<px4::params::MC_ROLL_P>) _param_mc_roll_p,

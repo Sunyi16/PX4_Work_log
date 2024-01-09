@@ -165,13 +165,8 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt,
 	attitude_setpoint.roll_body = euler_sp(0);
 
 	//pitch姿态的期望改为遥控遥感的映射，40度的极限值
-	pitch_setpoint = 80 * Pi * _manual_control_setpoint.aux1 / 360;
+	pitch_setpoint =_manual_control_setpoint.aux1 * float(_man_tilt_pitch);
 	attitude_setpoint.pitch_body = pitch_setpoint;
-
-	//遥控输入到舵机输出映射，保证pitch
-	servo_setpoint = (pitch_setpoint / (_param_servo_range.get() / 2000)-1500)/500;
-
-	actuator2.control[5] = servo_setpoint;
 
 	// The axis angle can change the yaw as well (noticeable at higher tilt angles).
 	// This is the formula by how much the yaw changes:
@@ -220,6 +215,15 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt,
 	Quatf q_sp = Eulerf(attitude_setpoint.roll_body, attitude_setpoint.pitch_body, attitude_setpoint.yaw_body);
 	q_sp.copyTo(attitude_setpoint.q_d);
 
+	//重写姿态期望
+	Vector3f att_setpoint = Eulerf(Quatf(attitude_setpoint.q_d));
+	att_setpoint(1) = pitch_setpoint;
+	Quatf q_chance = Eulerf(att_setpoint(0), att_setpoint(1), att_setpoint(2));
+	float chance[4];
+	q_chance.copyTo(chance);
+	for(int i=0 ;i<4; i++){
+	attitude_setpoint.q_d[i] = chance[i];}
+
 	attitude_setpoint.thrust_body[2] = -throttle_curve(math::constrain(_manual_control_setpoint.z, 0.f, 1.f));
 	attitude_setpoint.timestamp = hrt_absolute_time();
 
@@ -229,6 +233,27 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt,
 	_attitude_control.setAttitudeSetpoint(q_sp, attitude_setpoint.yaw_sp_move_rate);
 	_thrust_setpoint_body = Vector3f(attitude_setpoint.thrust_body);
 	_last_attitude_setpoint = attitude_setpoint.timestamp;
+}
+
+float
+MulticopterAttitudeControl::abs_f(float value){
+	if(value <= 0){
+		value = -value;
+	}
+	return value;
+}
+
+void
+MulticopterAttitudeControl::servo_pub(){
+	//遥控输入到舵机输出映射，保证pitch
+	servo_setpoint = float((abs_f(pitch_setpoint) / (2.0f*float(Pi) *_param_servo_range.get() / (360.0f*2000.0f)))/500.0f);
+	if(pitch_setpoint <= 0) servo_setpoint = -servo_setpoint;
+	//fmu1
+	actuator2.control[5] = servo_setpoint;
+
+	actuator2.timestamp = hrt_absolute_time();
+
+	_actuator2_set_pub.publish(actuator2);
 }
 
 void
@@ -368,7 +393,7 @@ MulticopterAttitudeControl::Run()
 		// attitude setpoint for the transition
 		_reset_yaw_sp = !attitude_setpoint_generated || _landed || (_vtol && _vtol_in_transition_mode);
 	}
-
+	servo_pub();
 	perf_end(_loop_perf);
 }
 

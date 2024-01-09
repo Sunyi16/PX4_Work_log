@@ -1,5 +1,21 @@
 # Manual pass through mixer for servo outputs 1-3
 
+serve1
+M: 1
+S: 2 1  10000  10000      0 -10000  10000
+
+serve2
+M: 1
+S: 2 2  10000  10000      0 -10000  10000
+
+serve3
+M: 1
+S: 2 3  10000  10000      0 -10000  10000
+
+serve4
+M: 1
+S: 2 4  10000  10000      0 -10000  10000
+
 serve-pitch
 M: 1
 S: 2 5  10000  10000      0 -10000  10000
@@ -7,11 +23,3 @@ S: 2 5  10000  10000      0 -10000  10000
 # AUX2 channel (select RC channel with RC_MAP_AUX2 param)
 M: 1
 S: 3 6  10000  10000      0 -10000  10000
-
-# AUX3 channel (select RC channel with RC_MAP_AUX3 param)
-M: 1
-S: 3 7  10000  10000      0 -10000  10000
-
-# FLAPS channel (select RC channel with RC_MAP_FLAPS param)
-M: 1
-S: 3 4  10000  10000      0 -10000  10000
