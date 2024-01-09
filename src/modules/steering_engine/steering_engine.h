@@ -16,6 +16,7 @@
 #include <uORB/Publication.hpp>
 #include <uORB/Subscription.hpp>
 #include <uORB/topics/parameter_update.h>
+#include <uORB/topics/scd.h>
 
 __BEGIN_DECLS
 
@@ -36,15 +37,25 @@ public:
 
 
 private:
-	float Pwm_value;
-	float Pwm_value_mid;
+	float rpm_control(float rpm_set); //转速控制
+	void rpm_act();	//获取实际转速
+	float rpm_value;
+	float rpm_value_set;
+	float previous_time;
+	float previous_error;
+	float dt_v;
 	actuator_controls_s _actuators2;
 	uORB::Publication<actuator_controls_s>  _actuators2_set{ORB_ID(actuator_controls_2)};           /*pwm setpoint publication*/
 	uORB::Subscription _params_sub{ORB_ID(parameter_update)};			/**< parameter updates subscription */
+	uORB::Subscription scd_value_sub{ORB_ID(scd)};
 
 	/*Define a param to set the pwm value*/
 	DEFINE_PARAMETERS(
-	(ParamInt<px4::params::PWM_VALUE>) _param_pwm_value
+	(ParamInt<px4::params::PWM_VALUE>) _param_pwm_value,
+	(ParamInt<px4::params::PWM_VALUE_P>) _param_pwm_value_p,
+	(ParamInt<px4::params::PWM_VALUE_I>) _param_pwm_value_i,
+	(ParamInt<px4::params::PWM_VALUE_D>) _param_pwm_value_d
+
 
 	)
 };
