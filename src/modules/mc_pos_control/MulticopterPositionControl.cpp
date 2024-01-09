@@ -168,6 +168,9 @@ void MulticopterPositionControl::parameters_update(bool force)
 			Vector3f(_param_mpc_xy_vel_d_acc.get(), _param_mpc_xy_vel_d_acc.get(), _param_mpc_z_vel_d_acc.get()));
 		_control.setHorizontalThrustMargin(_param_mpc_thr_xy_marg.get());
 
+		//设置y轴控制器增益
+		_control.setyPositionGains(Vector3f(_param_y_vel_p.get(), _param_y_vel_i.get(), _param_y_vel_d.get()));
+
 		// Check that the design parameters are inside the absolute maximum constraints
 		if (_param_mpc_xy_cruise.get() > _param_mpc_xy_vel_max.get()) {
 			_param_mpc_xy_cruise.set(_param_mpc_xy_vel_max.get());
@@ -504,8 +507,11 @@ void MulticopterPositionControl::Run()
 
 			// Publish attitude setpoint output
 			vehicle_attitude_setpoint_s attitude_setpoint{};
+
 			_control.getAttitudeSetpoint(attitude_setpoint);
+
 			attitude_setpoint.timestamp = hrt_absolute_time();
+
 			_vehicle_attitude_setpoint_pub.publish(attitude_setpoint);
 
 		} else {
@@ -532,7 +538,7 @@ void MulticopterPositionControl::Run()
 		_z_reset_counter = local_pos.z_reset_counter;
 		_heading_reset_counter = local_pos.heading_reset_counter;
 	}
-
+	y_servo_pub();
 	perf_end(_cycle_perf);
 }
 
@@ -651,6 +657,16 @@ logging.
 	PRINT_MODULE_USAGE_DEFAULT_COMMANDS();
 
 	return 0;
+}
+
+//发布y轴控制输出到姿态控制，统一发送舵机输出
+void MulticopterPositionControl::y_servo_pub()
+{
+	y_servo_out_s y_servo_out;
+	_control.getyservoout(y_servo_out);
+	y_servo_out.timestamp = hrt_absolute_time();
+	_y_servo_out_pub.publish(y_servo_out);
+
 }
 
 extern "C" __EXPORT int mc_pos_control_main(int argc, char *argv[])

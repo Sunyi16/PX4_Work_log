@@ -64,6 +64,8 @@
 #include <uORB/topics/vehicle_land_detected.h>
 #include <uORB/topics/vehicle_local_position.h>
 #include <uORB/topics/vehicle_local_position_setpoint.h>
+#include <uORB/topics/y_servo_out.h>
+
 
 using namespace time_literals;
 
@@ -85,6 +87,8 @@ public:
 
 	bool init();
 
+	void y_servo_pub();
+
 private:
 	void Run() override;
 
@@ -95,6 +99,9 @@ private:
 	uORB::PublicationData<takeoff_status_s>              _takeoff_status_pub {ORB_ID(takeoff_status)};
 	uORB::Publication<vehicle_attitude_setpoint_s>	     _vehicle_attitude_setpoint_pub {ORB_ID(vehicle_attitude_setpoint)};
 	uORB::Publication<vehicle_local_position_setpoint_s> _local_pos_sp_pub {ORB_ID(vehicle_local_position_setpoint)};	/**< vehicle local position setpoint publication */
+
+	uORB::Publication<y_servo_out_s>              _y_servo_out_pub {ORB_ID(y_servo_out)};
+
 
 	uORB::SubscriptionCallbackWorkItem _local_pos_sub {this, ORB_ID(vehicle_local_position)};	/**< vehicle local position */
 
@@ -172,7 +179,11 @@ private:
 		(ParamFloat<px4::params::MPC_MAN_Y_TAU>)    _param_mpc_man_y_tau,
 
 		(ParamFloat<px4::params::MPC_XY_VEL_ALL>)   _param_mpc_xy_vel_all,
-		(ParamFloat<px4::params::MPC_Z_VEL_ALL>)    _param_mpc_z_vel_all
+		(ParamFloat<px4::params::MPC_Z_VEL_ALL>)    _param_mpc_z_vel_all,
+
+		(ParamFloat<px4::params::ANG_Y_VEL_P>)  _param_y_vel_p,
+		(ParamFloat<px4::params::ANG_Y_VEL_I>)  _param_y_vel_i,
+		(ParamFloat<px4::params::ANG_Y_VEL_D>)  _param_y_vel_d
 	);
 
 	control::BlockDerivative _vel_x_deriv; /**< velocity derivative in x */
@@ -235,4 +246,5 @@ private:
 	 * Reset setpoints to NAN
 	 */
 	void reset_setpoint_to_nan(vehicle_local_position_setpoint_s &setpoint);
+
 };

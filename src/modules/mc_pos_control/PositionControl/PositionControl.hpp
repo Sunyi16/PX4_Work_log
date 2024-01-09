@@ -43,6 +43,8 @@
 #include <matrix/matrix/math.hpp>
 #include <uORB/topics/vehicle_attitude_setpoint.h>
 #include <uORB/topics/vehicle_local_position_setpoint.h>
+#include <uORB/topics/y_servo_out.h>
+
 
 struct PositionControlStates {
 	matrix::Vector3f position;
@@ -83,6 +85,12 @@ public:
 	 * @param P 3D vector of proportional gains for x,y,z axis
 	 */
 	void setPositionGains(const matrix::Vector3f &P) { _gain_pos_p = P; }
+
+	/**
+	 * Set the y-position control pid gains
+	 * @param Pid
+	 */
+	void setyPositionGains(const matrix::Vector3f &Pid) { _gain_y_pid = Pid; }
 
 	/**
 	 * Set the velocity control gains
@@ -176,9 +184,11 @@ public:
 	 * It needs to be executed by the attitude controller to achieve velocity and position tracking.
 	 * @param attitude_setpoint reference to struct to fill up
 	 */
-	void getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint) const;
+	void getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint ) const;
+	void getyservoout(y_servo_out_s &y_servo_out ) const;
 
-	void y_acceleration_control_servo(const float dt);
+
+	void y_velocity_control_servo(const float dt);	//通过舵机控制y轴位置
 
 private:
 	bool _inputValid();
@@ -192,6 +202,9 @@ private:
 	matrix::Vector3f _gain_vel_p; ///< Velocity control proportional gain
 	matrix::Vector3f _gain_vel_i; ///< Velocity control integral gain
 	matrix::Vector3f _gain_vel_d; ///< Velocity control derivative gain
+
+	//y轴位置，舵机角度调节pid
+	matrix::Vector3f _gain_y_pid;
 
 	// Limits
 	float _lim_vel_horizontal{}; ///< Horizontal velocity limit with feed forward and position control
@@ -218,4 +231,6 @@ private:
 	matrix::Vector3f _thr_sp; /**< desired thrust */
 	float _yaw_sp{}; /**< desired heading */
 	float _yawspeed_sp{}; /** desired yaw-speed */
+
+	float y_servo_out_m;
 };

@@ -55,6 +55,8 @@
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/topics/vehicle_land_detected.h>
 #include <uORB/topics/actuator_controls.h>
+#include <uORB/topics/y_servo_out.h>
+
 #include <vtol_att_control/vtol_type.h>
 #include <lib/mathlib/math/filter/AlphaFilter.hpp>
 
@@ -118,6 +120,8 @@ private:
 	uORB::Subscription _vehicle_status_sub{ORB_ID(vehicle_status)};			/**< vehicle status subscription */
 	uORB::Subscription _vehicle_land_detected_sub{ORB_ID(vehicle_land_detected)};	/**< vehicle land detected subscription */
 
+	uORB::Subscription _y_servo_out_sub{ORB_ID(y_servo_out)};
+
 	uORB::SubscriptionCallbackWorkItem _vehicle_attitude_sub{this, ORB_ID(vehicle_attitude)};
 
 	uORB::Publication<vehicle_rates_setpoint_s>	_v_rates_sp_pub{ORB_ID(vehicle_rates_setpoint)};			/**< rate setpoint publication */
@@ -126,6 +130,7 @@ private:
 
 	struct manual_control_setpoint_s	_manual_control_setpoint {};	/**< manual control setpoint */
 	struct vehicle_control_mode_s		_v_control_mode {};	/**< vehicle control mode */
+	struct y_servo_out_s		_y_servo_value;
 
 	perf_counter_t	_loop_perf;			/**< loop duration performance counter */
 
@@ -175,7 +180,7 @@ private:
 
 		(ParamInt<px4::params::MC_AIRMODE>) _param_mc_airmode,
 		(ParamFloat<px4::params::MC_MAN_TILT_TAU>) _param_mc_man_tilt_tau,
-		(ParamFloat<px4::params::SERVO_RANGE>) _param_servo_range
+		(ParamFloat<px4::params::ANG_SERVO_RANGE>) _param_servo_range
 
 	)
 };

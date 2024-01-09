@@ -245,11 +245,46 @@ MulticopterAttitudeControl::abs_f(float value){
 
 void
 MulticopterAttitudeControl::servo_pub(){
+	float servo_one = 2.0f*float(Pi) *_param_servo_range.get() / (360.0f*2000.0f);	//舵机每1us是多少弧度
+
 	//遥控输入到舵机输出映射，保证pitch
-	servo_setpoint = float((abs_f(pitch_setpoint) / (2.0f*float(Pi) *_param_servo_range.get() / (360.0f*2000.0f)))/500.0f);
+	servo_setpoint = float((abs_f(pitch_setpoint) / servo_one)/500.0f);
 	if(pitch_setpoint <= 0) servo_setpoint = -servo_setpoint;
 	//fmu1
 	actuator2.control[5] = servo_setpoint;
+
+	//接收位置控制传来的y轴控制输出，分配为舵机输出
+	if (_y_servo_out_sub.updated()) {
+
+	_y_servo_out_sub.copy(&_y_servo_value);
+
+	}
+	float y_out =_y_servo_value.y_servo_out_value;
+	//假定往前移动为正
+	if(y_out > 20){
+		y_out = 20;
+	}
+	else if(y_out < -20){
+		y_out = -20;
+	}
+	if(y_out >= -20 && y_out <= 20){
+		y_out = ((y_out * float(Pi) / 180.0f)/servo_one)/500.0f;
+
+		if(y_out >= 0){
+			actuator2.control[1] = y_out;
+			actuator2.control[2] = y_out;
+			actuator2.control[3] = 0;
+			actuator2.control[4] = 0;
+
+		}
+		else if(y_out < 0){
+			actuator2.control[1] = 0;
+			actuator2.control[2] = 0;
+			actuator2.control[3] = y_out;
+			actuator2.control[4] = y_out;
+		}
+
+	}
 
 	actuator2.timestamp = hrt_absolute_time();
 
