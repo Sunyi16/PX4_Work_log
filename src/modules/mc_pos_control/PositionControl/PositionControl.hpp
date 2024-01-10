@@ -185,10 +185,10 @@ public:
 	 * @param attitude_setpoint reference to struct to fill up
 	 */
 	void getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_setpoint ) const;
-	void getyservoout(y_servo_out_s &y_servo_out ) const;
 
 
-	void y_velocity_control_servo(const float dt);	//通过舵机控制y轴位置
+
+	void y_position_control_servo(const float dt, y_servo_out_s &y_servo_out);	//通过舵机控制y轴位置
 
 private:
 	bool _inputValid();
@@ -232,5 +232,5 @@ private:
 	float _yaw_sp{}; /**< desired heading */
 	float _yawspeed_sp{}; /** desired yaw-speed */
 
-	float y_servo_out_m;
+	//float y_servo_out_m;
 };

@@ -137,10 +137,12 @@ void PositionControl::_positionControl()
 	_vel_sp(2) = math::constrain(_vel_sp(2), -_lim_vel_up, _lim_vel_down);
 }
 
-void PositionControl::y_velocity_control_servo(const float dt){
+void PositionControl::y_position_control_servo(const float dt, y_servo_out_s &y_servo_out){
 
 	float y_error = _vel_sp(1) - _vel(1);
-	y_servo_out_m = y_error * _gain_y_pid(0) + y_error * _gain_y_pid(1) * dt - _vel_dot(1) * _gain_y_pid(2);
+	float y_servo_out_m = y_error * float(_gain_y_pid(0)) + y_error * _gain_y_pid(1) * dt - _vel_dot(1) * _gain_y_pid(2);
+	//float y_error = 4 - 2;
+	y_servo_out.y_servo_out_value = y_servo_out_m;
 
 
 }
@@ -265,11 +267,5 @@ void PositionControl::getAttitudeSetpoint(vehicle_attitude_setpoint_s &attitude_
 	ControlMath::thrustToAttitude(_thr_sp, _yaw_sp, attitude_setpoint);
 	attitude_setpoint.yaw_sp_move_rate = _yawspeed_sp;
 	attitude_setpoint.pitch_body = 0;
-
-}
-
-void PositionControl::getyservoout(y_servo_out_s &y_servo_out) const
-{
-	y_servo_out.y_servo_out_value = y_servo_out_m;
 
 }

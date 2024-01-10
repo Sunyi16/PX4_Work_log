@@ -87,10 +87,12 @@ public:
 
 	bool init();
 
-	void y_servo_pub();
+
 
 private:
 	void Run() override;
+
+	void y_servo_pub(const float dt);
 
 	Takeoff _takeoff; /**< state machine and ramp to bring the vehicle off the ground without jumps */
 

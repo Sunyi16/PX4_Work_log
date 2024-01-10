@@ -537,8 +537,10 @@ void MulticopterPositionControl::Run()
 		_xy_reset_counter = local_pos.xy_reset_counter;
 		_z_reset_counter = local_pos.z_reset_counter;
 		_heading_reset_counter = local_pos.heading_reset_counter;
+
+		y_servo_pub(dt);
 	}
-	y_servo_pub();
+
 	perf_end(_cycle_perf);
 }
 
@@ -660,11 +662,12 @@ logging.
 }
 
 //发布y轴控制输出到姿态控制，统一发送舵机输出
-void MulticopterPositionControl::y_servo_pub()
+void MulticopterPositionControl::y_servo_pub(const float dt)
 {
 	y_servo_out_s y_servo_out;
-	_control.getyservoout(y_servo_out);
+	_control.y_position_control_servo(dt, y_servo_out);
 	y_servo_out.timestamp = hrt_absolute_time();
+	//y_servo_out.y_servo_out_value = 0;
 	_y_servo_out_pub.publish(y_servo_out);
 
 }
