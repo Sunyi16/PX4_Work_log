@@ -109,6 +109,9 @@ private:
 
 	float		abs_f(float value);
 
+	void		pitch_setpoint_set();
+
+
 	AttitudeControl _attitude_control; ///< class for attitude control calculations
 
 	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};

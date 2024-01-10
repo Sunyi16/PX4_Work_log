@@ -118,6 +118,13 @@ MulticopterAttitudeControl::throttle_curve(float throttle_stick_input)
 }
 
 void
+MulticopterAttitudeControl::pitch_setpoint_set(){
+
+	//pitch姿态的期望改为遥控遥感的映射，40度的极限值
+	pitch_setpoint =_manual_control_setpoint.aux1 * float(_man_tilt_pitch);
+}
+
+void
 MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt, bool reset_yaw_sp)
 {
 	vehicle_attitude_setpoint_s attitude_setpoint{};
@@ -164,8 +171,7 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt,
 	Eulerf euler_sp = q_sp_rpy;
 	attitude_setpoint.roll_body = euler_sp(0);
 
-	//pitch姿态的期望改为遥控遥感的映射，40度的极限值
-	pitch_setpoint =_manual_control_setpoint.aux1 * float(_man_tilt_pitch);
+	pitch_setpoint_set();
 	attitude_setpoint.pitch_body = pitch_setpoint;
 
 	// The axis angle can change the yaw as well (noticeable at higher tilt angles).
@@ -260,6 +266,15 @@ MulticopterAttitudeControl::servo_pub(){
 
 	}
 	float y_out =_y_servo_value.y_servo_out_value;
+
+	if(_v_control_mode.flag_control_attitude_enabled||
+	   _v_control_mode.flag_control_manual_enabled ||
+	   _v_control_mode.flag_control_altitude_enabled ||
+	   _v_control_mode.flag_control_velocity_enabled )
+	   {
+		y_out = 0;
+	   }
+
 	//假定往前移动为正
 	if(y_out > 20){
 		y_out = 20;
@@ -281,10 +296,11 @@ MulticopterAttitudeControl::servo_pub(){
 			actuator2.control[1] = 0;
 			actuator2.control[2] = 0;
 			actuator2.control[3] = y_out;
-			actuator2.control[4] = y_out;
+			actuator2.control[4] = 0.5;
 		}
 
 	}
+
 
 	actuator2.timestamp = hrt_absolute_time();
 
@@ -321,7 +337,7 @@ MulticopterAttitudeControl::Run()
 		const float dt = math::constrain(((v_att.timestamp_sample - _last_run) * 1e-6f), 0.0002f, 0.02f);
 		_last_run = v_att.timestamp_sample;
 
-		const Quatf q{v_att.q};
+		 Quatf q{v_att.q};
 
 		// Check for new attitude setpoint
 		if (_vehicle_attitude_setpoint_sub.updated()) {
@@ -396,7 +412,17 @@ MulticopterAttitudeControl::Run()
 			} else {
 				_man_x_input_filter.reset(0.f);
 				_man_y_input_filter.reset(0.f);
+				pitch_setpoint_set();
 			}
+
+			// 把pitch设为遥控输入
+			Vector3f att_setpoint = Eulerf(Quatf(q));
+			att_setpoint(1) = pitch_setpoint;
+			Quatf q_chance = Eulerf(att_setpoint(0), att_setpoint(1), att_setpoint(2));
+			float chance[4];
+			q_chance.copyTo(chance);
+			for(int i=0 ;i<4; i++){
+			q(i) = chance[i];}
 
 			Vector3f rates_sp = _attitude_control.update(q);
 
