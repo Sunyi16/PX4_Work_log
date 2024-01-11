@@ -50,6 +50,8 @@
 
 #include <matrix/matrix/math.hpp>
 #include <mathlib/math/Limits.hpp>
+#include <mathlib/math/Functions.hpp>
+#include <mathlib/math/Limits.hpp>
 
 class AttitudeControl
 {
@@ -75,9 +77,13 @@ public:
 	 * @param qd desired vehicle attitude setpoint
 	 * @param yawspeed_setpoint [rad/s] yaw feed forward angular rate in world frame
 	 */
-	void setAttitudeSetpoint(const matrix::Quatf &qd, const float yawspeed_setpoint)
+	void setAttitudeSetpoint(const matrix::Quatf &qd, const float yawspeed_setpoint, float pitch_setpoint)
 	{
-		_attitude_setpoint_q = qd;
+
+		float roll = matrix::Eulerf(qd).phi();
+		float pitch = 0.0f;
+		float yaw = matrix::Eulerf(qd).psi();
+		_attitude_setpoint_q = matrix::Eulerf(roll, pitch, yaw);
 		_attitude_setpoint_q.normalize();
 		_yawspeed_setpoint = yawspeed_setpoint;
 	}

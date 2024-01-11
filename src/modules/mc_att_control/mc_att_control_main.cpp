@@ -154,9 +154,12 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt,
 	 */
 	_man_x_input_filter.setParameters(dt, _param_mc_man_tilt_tau.get());
 	_man_y_input_filter.setParameters(dt, _param_mc_man_tilt_tau.get());
-	_man_x_input_filter.update(_manual_control_setpoint.x * _man_tilt_max);
+	//_man_x_input_filter.update(_manual_control_setpoint.x * _man_tilt_max);
 	_man_y_input_filter.update(_manual_control_setpoint.y * _man_tilt_max);
-	const float x = _man_x_input_filter.getState();
+	float x = _man_x_input_filter.getState();
+	//关闭遥控输入
+	x = 0.0f;
+
 	const float y = _man_y_input_filter.getState();
 
 	// we want to fly towards the direction of (x, y), so we use a perpendicular axis angle vector in the XY-plane
@@ -222,13 +225,13 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt,
 	q_sp.copyTo(attitude_setpoint.q_d);
 
 	//重写姿态期望
-	Vector3f att_setpoint = Eulerf(Quatf(attitude_setpoint.q_d));
+	/* Vector3f att_setpoint = Eulerf(Quatf(attitude_setpoint.q_d));
 	att_setpoint(1) = pitch_setpoint;
 	Quatf q_chance = Eulerf(att_setpoint(0), att_setpoint(1), att_setpoint(2));
 	float chance[4];
 	q_chance.copyTo(chance);
 	for(int i=0 ;i<4; i++){
-	attitude_setpoint.q_d[i] = chance[i];}
+	attitude_setpoint.q_d[i] = chance[i];} */
 
 	attitude_setpoint.thrust_body[2] = -throttle_curve(math::constrain(_manual_control_setpoint.z, 0.f, 1.f));
 	attitude_setpoint.timestamp = hrt_absolute_time();
@@ -236,7 +239,8 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt,
 	_vehicle_attitude_setpoint_pub.publish(attitude_setpoint);
 
 	// update attitude controller setpoint immediately
-	_attitude_control.setAttitudeSetpoint(q_sp, attitude_setpoint.yaw_sp_move_rate);
+	pitch_setpoint_set();
+	_attitude_control.setAttitudeSetpoint(q_sp, attitude_setpoint.yaw_sp_move_rate, pitch_setpoint);
 	_thrust_setpoint_body = Vector3f(attitude_setpoint.thrust_body);
 	_last_attitude_setpoint = attitude_setpoint.timestamp;
 }
@@ -286,17 +290,18 @@ MulticopterAttitudeControl::servo_pub(){
 		y_out = ((y_out * float(Pi) / 180.0f)/servo_one)/500.0f;
 
 		if(y_out >= 0){
+			actuator2.control[1] = 0;
+			actuator2.control[2] = 0;
+			actuator2.control[3] = y_out;
+			actuator2.control[4] = y_out;
+
+		}
+		else if(y_out < 0){
 			actuator2.control[1] = y_out;
 			actuator2.control[2] = y_out;
 			actuator2.control[3] = 0;
 			actuator2.control[4] = 0;
 
-		}
-		else if(y_out < 0){
-			actuator2.control[1] = 0;
-			actuator2.control[2] = 0;
-			actuator2.control[3] = y_out;
-			actuator2.control[4] = 0.5;
 		}
 
 	}
@@ -341,12 +346,13 @@ MulticopterAttitudeControl::Run()
 
 		// Check for new attitude setpoint
 		if (_vehicle_attitude_setpoint_sub.updated()) {
+
 			vehicle_attitude_setpoint_s vehicle_attitude_setpoint;
 
 			if (_vehicle_attitude_setpoint_sub.copy(&vehicle_attitude_setpoint)
 			    && (vehicle_attitude_setpoint.timestamp > _last_attitude_setpoint)) {
-
-				_attitude_control.setAttitudeSetpoint(Quatf(vehicle_attitude_setpoint.q_d), vehicle_attitude_setpoint.yaw_sp_move_rate);
+				pitch_setpoint_set();
+				_attitude_control.setAttitudeSetpoint(Quatf(vehicle_attitude_setpoint.q_d), vehicle_attitude_setpoint.yaw_sp_move_rate, pitch_setpoint);
 				_thrust_setpoint_body = Vector3f(vehicle_attitude_setpoint.thrust_body);
 				_last_attitude_setpoint = vehicle_attitude_setpoint.timestamp;
 			}
@@ -410,19 +416,22 @@ MulticopterAttitudeControl::Run()
 				attitude_setpoint_generated = true;
 
 			} else {
-				_man_x_input_filter.reset(0.f);
-				_man_y_input_filter.reset(0.f);
+				//_man_x_input_filter.reset(0.f);
+				//_man_y_input_filter.reset(0.f);
 				pitch_setpoint_set();
+				// 把pitch设为遥控输入
+				float yaw = Eulerf(q).psi();
+				float roll = Eulerf(q).phi();
+				float pitch = pitch_setpoint;
+
+				Quatf q_chance = Eulerf(roll, pitch, yaw);
+				float chance[4];
+				q_chance.copyTo(chance);
+				for(int i=0 ;i<4; i++){
+				q(i) = chance[i];}
 			}
 
-			// 把pitch设为遥控输入
-			Vector3f att_setpoint = Eulerf(Quatf(q));
-			att_setpoint(1) = pitch_setpoint;
-			Quatf q_chance = Eulerf(att_setpoint(0), att_setpoint(1), att_setpoint(2));
-			float chance[4];
-			q_chance.copyTo(chance);
-			for(int i=0 ;i<4; i++){
-			q(i) = chance[i];}
+
 
 			Vector3f rates_sp = _attitude_control.update(q);
 
@@ -435,7 +444,8 @@ MulticopterAttitudeControl::Run()
 				     || pid_autotune.state == autotune_attitude_control_status_s::STATE_YAW
 				     || pid_autotune.state == autotune_attitude_control_status_s::STATE_TEST)
 				    && ((now - pid_autotune.timestamp) < 1_s)) {
-					rates_sp += Vector3f(pid_autotune.rate_sp);
+					rates_sp(0) += Vector3f(pid_autotune.rate_sp)(0);
+					rates_sp(2) += Vector3f(pid_autotune.rate_sp)(2);
 				}
 			}
 

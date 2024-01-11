@@ -177,7 +177,7 @@ MulticopterRateControl::Run()
 				// manual rates control - ACRO mode
 				const Vector3f man_rate_sp{
 					math::superexpo(manual_control_setpoint.y, _param_mc_acro_expo.get(), _param_mc_acro_supexpo.get()),
-					math::superexpo(-manual_control_setpoint.x, _param_mc_acro_expo.get(), _param_mc_acro_supexpo.get()),
+					math::superexpo(0.0f, _param_mc_acro_expo.get(), _param_mc_acro_supexpo.get()),
 					math::superexpo(manual_control_setpoint.r, _param_mc_acro_expo_y.get(), _param_mc_acro_supexpoy.get())};
 
 				_rates_sp = man_rate_sp.emult(_acro_rate_max);

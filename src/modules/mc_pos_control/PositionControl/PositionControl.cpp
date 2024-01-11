@@ -139,9 +139,10 @@ void PositionControl::_positionControl()
 
 void PositionControl::y_position_control_servo(const float dt, y_servo_out_s &y_servo_out){
 
-	float y_error = _vel_sp(1) - _vel(1);
-	float y_servo_out_m = y_error * float(_gain_y_pid(0)) + y_error * _gain_y_pid(1) * dt - _vel_dot(1) * _gain_y_pid(2);
+	float y_errors = _vel_sp(1) - _vel(1);
+	float y_servo_out_m = y_errors * float(_gain_y_pid(0)) + y_errors * _gain_y_pid(1) * dt - _vel_dot(1) * _gain_y_pid(2);
 	//float y_error = 4 - 2;
+	y_servo_out.y_error = y_errors;
 	y_servo_out.y_servo_out_value = y_servo_out_m;
 
 
