@@ -48,15 +48,15 @@ int Scd::measure()
 	 */
 	uint8_t cmd = START_CMD_DOWM;
 	int ret = transfer(&cmd, 2, nullptr, 0);
-	uint8_t cmd = START_CMD_UP;
-	int ret1 = transfer(&cmd, 2, nullptr, 0);
+	uint8_t cmd1 = START_CMD_UP;
+	int ret1 = transfer(&cmd1, 2, nullptr, 0);
 
-	uint8_t cmd = READ_CMD_DOWN;
-	int ret2 = transfer(&cmd, 2, nullptr, 0);
-	uint8_t cmd = READ_CMD_UP;
-	int ret3 = transfer(&cmd, 2, nullptr, 0);
+	uint8_t cmd2 = READ_CMD_DOWN;
+	int ret2 = transfer(&cmd2, 2, nullptr, 0);
+	uint8_t cmd3 = READ_CMD_UP;
+	int ret3 = transfer(&cmd3, 2, nullptr, 0);
 
-	boll measure_ok = ret && ret1 && ret2 && ret3;
+	bool measure_ok = ret && ret1 && ret2 && ret3;
 
 	if (OK != measure_ok) {
 		perf_count(_comms_errors);
@@ -147,9 +147,9 @@ void Scd::RunImpl()
 
 	_sensor_ok = (ret == OK);
 
-	/* next phase is collection
+	// next phase is collection
 	_collect_phase = true;
 
-	/* schedule a fresh cycle call when the measurement is done */
+	// schedule a fresh cycle call when the measurement is done
 	ScheduleDelayed(CONVERSION_INTERVAL);
 }
