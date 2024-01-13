@@ -46,14 +46,23 @@ int Scd::measure()
 	/*
 	 * 发送启动测量数据之前的命令
 	 */
-	uint8_t cmd = READ_CMD;
+	uint8_t cmd = START_CMD_DOWM;
 	int ret = transfer(&cmd, 2, nullptr, 0);
+	uint8_t cmd = START_CMD_UP;
+	int ret1 = transfer(&cmd, 2, nullptr, 0);
 
-	if (OK != ret) {
+	uint8_t cmd = READ_CMD_DOWN;
+	int ret2 = transfer(&cmd, 2, nullptr, 0);
+	uint8_t cmd = READ_CMD_UP;
+	int ret3 = transfer(&cmd, 2, nullptr, 0);
+
+	boll measure_ok = ret && ret1 && ret2 && ret3;
+
+	if (OK != measure_ok) {
 		perf_count(_comms_errors);
 	}
 
-	return ret;
+	return measure_ok;
 }
 
 int Scd::collect()
@@ -130,15 +139,15 @@ void Scd::RunImpl()
 	}
 
 	/* measurement phase */
-/* 	ret = measure();
+	ret = measure();
 
 	if (OK != ret) {
 		DEVICE_DEBUG("measure error");
 	}
 
-	_sensor_ok = (ret == OK); */
+	_sensor_ok = (ret == OK);
 
-	/* next phase is collection */
+	/* next phase is collection
 	_collect_phase = true;
 
 	/* schedule a fresh cycle call when the measurement is done */

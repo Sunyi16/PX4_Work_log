@@ -16,7 +16,11 @@
 static constexpr uint32_t I2C_SPEED = 100 * 1000; // 传输速度
 static constexpr uint8_t I2C_ADDRESS_DEFAULT = 0x1e; //设备地址0x31
 
-#define READ_CMD	uint8_t(0xec05)	//读数据之前要发送的命令
+#define START_CMD_DOWM	uint8_t(0xb1)	//开始命令，低8位
+#define START_CMD_UP	uint8_t(0x21)	//开始命令，高8位
+#define READ_CMD_DOWN	uint8_t(0x05)	//读取命令，低8位
+#define READ_CMD_UP	uint8_t(0xec)	//读取命令，高8位
+
 
 #define MIN_ACCURATE_DIFF_PRES_PA 0
 
