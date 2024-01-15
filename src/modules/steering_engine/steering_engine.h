@@ -44,6 +44,7 @@ private:
 	float previous_time;
 	float previous_error;
 	float dt_v;
+	float previous_out
 	actuator_controls_s _actuators2;
 	uORB::Publication<actuator_controls_s>  _actuators2_set{ORB_ID(actuator_controls_2)};           /*pwm setpoint publication*/
 	uORB::Subscription _params_sub{ORB_ID(parameter_update)};			/**< parameter updates subscription */
@@ -51,7 +52,7 @@ private:
 
 	/*Define a param to set the pwm value*/
 	DEFINE_PARAMETERS(
-	(ParamInt<px4::params::PWM_VALUE>) _param_pwm_value,
+	(ParamInt<px4::params::PWM_RPM_VALUE>) _param_pwm_rpm_value,
 	(ParamInt<px4::params::PWM_VALUE_P>) _param_pwm_value_p,
 	(ParamInt<px4::params::PWM_VALUE_I>) _param_pwm_value_i,
 	(ParamInt<px4::params::PWM_VALUE_D>) _param_pwm_value_d

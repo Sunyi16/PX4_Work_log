@@ -41,15 +41,15 @@
 /**
  * pwm_value
  *
- * set aux_pwm
+ * set aux_rpm
  *
- * @min 1000
- * @max 2000
+ * @min 2000
+ * @max 10000
  * @decimal 1
  * @increment 5
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_INT32(PWM_VALUE, 1000);
+PARAM_DEFINE_INT32(PWM_RPM_VALUE, 1000);
 
 /**
  * pwm_value_p
