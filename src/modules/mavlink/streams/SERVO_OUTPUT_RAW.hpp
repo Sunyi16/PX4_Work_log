@@ -86,7 +86,7 @@ private:
 			msg.servo3_raw = act.output[2];
 			msg.servo4_raw = act.output[3];
 			msg.servo5_raw = act.output[4];
-			msg.servo6_raw = 600;
+			msg.servo6_raw = act.output[5];
 			msg.servo7_raw = act.output[6];
 			msg.servo8_raw = act.output[7];
 			msg.servo9_raw = act.output[8];
