@@ -1,0 +1,12 @@
+menuconfig MODULES_FIRST
+	bool "first"
+	default n
+	---help---
+		Enable support for first
+
+menuconfig USER_FIRST
+	bool "first running as userspace module"
+	default y
+	depends on BOARD_PROTECTED && MODULES_FIRST
+	---help---
+		Put sfirst in userspace memory

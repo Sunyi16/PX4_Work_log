@@ -73,6 +73,8 @@ int Scd::collect()
 		return ret;
 	}
 
+	float distance = ((val[0]<<16) + (val[1]<<8) + (val[2]))/1000;
+
 	scd_s scd{};
 	scd.timestamp_sample = timestamp_sample;
 	scd.device_id = get_device_id();
@@ -82,9 +84,12 @@ int Scd::collect()
 		scd.data[i]=val[i];
 	}
 
+	scd.data[4] = distance;
 	scd.error_count = perf_event_count(_comms_errors);
 	scd.timestamp = hrt_absolute_time();
+	if(distance > 0){
 	scd_pub.publish(scd);
+	}
 
 	/*设置断点打印调试*/
 	for(int loop=0; loop<3; loop++)
