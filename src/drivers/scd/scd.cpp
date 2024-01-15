@@ -47,7 +47,7 @@ int Scd::measure()
 	 * 发送启动测量数据之前的命令
 	 */
 	uint8_t cmd = START_CMD_DOWM;
-	int ret = transfer(&cmd, 2, nullptr, 0);
+	int ret = transfer(&cmd, 1, nullptr, 0);
 
 
 	bool measure_ok = ret;
@@ -87,7 +87,7 @@ int Scd::collect()
 	scd_pub.publish(scd);
 
 	/*设置断点打印调试*/
-	for(int loop=0; loop<9; loop++)
+	for(int loop=0; loop<3; loop++)
 	{
 		PX4_INFO("%d", scd.data[loop]);
 	}
