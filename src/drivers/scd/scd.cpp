@@ -48,15 +48,9 @@ int Scd::measure()
 	 */
 	uint8_t cmd = START_CMD_DOWM;
 	int ret = transfer(&cmd, 2, nullptr, 0);
-	uint8_t cmd1 = START_CMD_UP;
-	int ret1 = transfer(&cmd1, 2, nullptr, 0);
 
-	uint8_t cmd2 = READ_CMD_DOWN;
-	int ret2 = transfer(&cmd2, 2, nullptr, 0);
-	uint8_t cmd3 = READ_CMD_UP;
-	int ret3 = transfer(&cmd3, 2, nullptr, 0);
 
-	bool measure_ok = ret && ret1 && ret2 && ret3;
+	bool measure_ok = ret;
 
 	if (OK != measure_ok) {
 		perf_count(_comms_errors);
@@ -68,11 +62,11 @@ int Scd::measure()
 int Scd::collect()
 {
 	/* 读取数据 */
-	uint8_t val[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+	uint8_t val[3] = {0, 0, 0};
 
 	perf_begin(_sample_perf);
 	const hrt_abstime timestamp_sample = hrt_absolute_time();
-	int ret = transfer(nullptr, 0, &val[0], 9);
+	int ret = transfer(nullptr, 0, &val[0], 3);
 
 	if (ret < 0) {
 		perf_count(_comms_errors);
@@ -83,7 +77,7 @@ int Scd::collect()
 	scd.timestamp_sample = timestamp_sample;
 	scd.device_id = get_device_id();
 
-	for(int i=0; i<9; i++)
+	for(int i=0; i<3; i++)
 	{
 		scd.data[i]=val[i];
 	}
