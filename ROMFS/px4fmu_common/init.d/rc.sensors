@@ -161,6 +161,9 @@ then
 	sht3x start -X -a 0x45
 fi
 
+
+scd start -X
+
 # IR-LOCK sensor external I2C
 if param compare -s SENS_EN_IRLOCK 1
 then

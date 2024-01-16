@@ -1,0 +1,5 @@
+menuconfig DRIVERS_SCD
+	bool "scd"
+	default n
+	---help---
+		Enable support for scd
