@@ -271,10 +271,7 @@ MulticopterAttitudeControl::servo_pub(){
 	}
 	float y_out =_y_servo_value.y_servo_out_value;
 
-	if(_v_control_mode.flag_control_attitude_enabled||
-	   _v_control_mode.flag_control_manual_enabled ||
-	   _v_control_mode.flag_control_altitude_enabled ||
-	   _v_control_mode.flag_control_velocity_enabled )
+	if(!_v_control_mode.flag_control_position_enabled)
 	   {
 		y_out = 0;
 	   }
