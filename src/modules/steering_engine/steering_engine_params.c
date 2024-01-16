@@ -49,7 +49,7 @@
  * @increment 5
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_INT32(PWM_RPM_VALUE, 1000);
+PARAM_DEFINE_INT32(PWM_RPM_VALUE, 5000);
 
 /**
  * pwm_value_p

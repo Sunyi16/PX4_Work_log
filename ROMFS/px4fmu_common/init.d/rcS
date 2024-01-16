@@ -598,4 +598,4 @@ unset VEHICLE_TYPE
 #
 mavlink boot_complete
 
-mavlink stream -d /dev/ttyACM0 -s SERVO_OUTPUT_RAW_0 -r 100
+#mavlink stream -d /dev/ttyACM0 -s SERVO_OUTPUT_RAW_0 -r 100

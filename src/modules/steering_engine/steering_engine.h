@@ -44,7 +44,7 @@ private:
 	float previous_time;
 	float previous_error;
 	float dt_v;
-	float previous_out
+	float previous_out;
 	actuator_controls_s _actuators2;
 	uORB::Publication<actuator_controls_s>  _actuators2_set{ORB_ID(actuator_controls_2)};           /*pwm setpoint publication*/
 	uORB::Subscription _params_sub{ORB_ID(parameter_update)};			/**< parameter updates subscription */
