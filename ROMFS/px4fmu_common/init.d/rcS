@@ -597,3 +597,5 @@ unset VEHICLE_TYPE
 # Boot is complete, inform MAVLink app(s) that the system is now fully up and running.
 #
 mavlink boot_complete
+
+mavlink stream -d /dev/ttyACM0 -s SERVO_OUTPUT_RAW_0 -r 100
