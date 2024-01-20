@@ -1432,7 +1432,7 @@ Mission::cruising_speed_sp_update()
 	pos_sp_triplet->current.cruising_speed = cruising_speed;
 
 	publish_navigator_mission_item();
-	_navigator->set_position_setpoint_triplet_updated();
+	_navigator->set_position_setpoint_triplet_updated();//导航
 }
 
 void

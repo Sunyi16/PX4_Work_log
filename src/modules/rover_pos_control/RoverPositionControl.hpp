@@ -164,8 +164,8 @@ private:
 	/* previous waypoint */
 	matrix::Vector2d _prev_wp{0, 0};
 
-	enum class VelocityFrame {
-		NED,
+	enum class VelocityFrame {uORB::Publication<position_controller_status_s>	_pos_ctrl_status_pub{ORB_ID(position_controller_status)};  /**< navigation capabilities publication */
+	uORB
 		BODY,
 	} _velocity_frame{VelocityFrame::NED};
 
