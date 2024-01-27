@@ -92,7 +92,6 @@ public:
 private:
 	void Run() override;
 
-	void y_servo_pub(const float dt);
 
 	Takeoff _takeoff; /**< state machine and ramp to bring the vehicle off the ground without jumps */
 
@@ -185,7 +184,10 @@ private:
 
 		(ParamFloat<px4::params::ANG_Y_VEL_P>)  _param_y_vel_p,
 		(ParamFloat<px4::params::ANG_Y_VEL_I>)  _param_y_vel_i,
-		(ParamFloat<px4::params::ANG_Y_VEL_D>)  _param_y_vel_d
+		(ParamFloat<px4::params::ANG_Y_VEL_D>)  _param_y_vel_d,
+		(ParamFloat<px4::params::ANG_X_VEL_P>)  _param_x_vel_p,
+		(ParamFloat<px4::params::ANG_X_VEL_I>)  _param_x_vel_i,
+		(ParamFloat<px4::params::ANG_X_VEL_D>)  _param_x_vel_d
 	);
 
 	control::BlockDerivative _vel_x_deriv; /**< velocity derivative in x */

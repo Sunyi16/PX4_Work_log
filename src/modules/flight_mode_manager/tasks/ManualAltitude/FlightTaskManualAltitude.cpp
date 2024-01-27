@@ -285,6 +285,9 @@ void FlightTaskManualAltitude::_respectGroundSlowdown()
 	}
 }
 
+//坐标系转换
+//sunyi
+
 void FlightTaskManualAltitude::_rotateIntoHeadingFrame(Vector2f &v)
 {
 	const float yaw_rotate = PX4_ISFINITE(_yaw_setpoint) ? _yaw_setpoint : _yaw;

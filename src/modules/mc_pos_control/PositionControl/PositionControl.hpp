@@ -90,7 +90,10 @@ public:
 	 * Set the y-position control pid gains
 	 * @param Pid
 	 */
-	void setyPositionGains(const matrix::Vector3f &Pid) { _gain_y_pid = Pid; }
+	void setyPositionGains(const matrix::Vector3f &Pidy , const matrix::Vector3f &Pidx)
+	 { _gain_y_pid = Pidy;
+	   _gain_x_pid = Pidx;
+	 }
 
 	/**
 	 * Set the velocity control gains
@@ -162,7 +165,7 @@ public:
 	 * @param dt time in seconds since last iteration
 	 * @return true if update succeeded and output setpoint is executable, false if not
 	 */
-	bool update(const float dt);
+	bool update(const float dt , y_servo_out_s &y_servo_out);
 
 	/**
 	 * Set the integral term in xy to 0.
@@ -191,6 +194,9 @@ public:
 	void y_position_control_servo(const float dt, y_servo_out_s &y_servo_out);	//通过舵机控制y轴位置
 
 private:
+	float pre_vel_0;
+	float pre_vel_1;
+
 	bool _inputValid();
 
 	void _positionControl(); ///< Position proportional control
@@ -205,6 +211,8 @@ private:
 
 	//y轴位置，舵机角度调节pid
 	matrix::Vector3f _gain_y_pid;
+	matrix::Vector3f _gain_x_pid;
+
 
 	// Limits
 	float _lim_vel_horizontal{}; ///< Horizontal velocity limit with feed forward and position control

@@ -168,8 +168,8 @@ void MulticopterPositionControl::parameters_update(bool force)
 			Vector3f(_param_mpc_xy_vel_d_acc.get(), _param_mpc_xy_vel_d_acc.get(), _param_mpc_z_vel_d_acc.get()));
 		_control.setHorizontalThrustMargin(_param_mpc_thr_xy_marg.get());
 
-		//设置y轴控制器增益
-		_control.setyPositionGains(Vector3f(_param_y_vel_p.get(), _param_y_vel_i.get(), _param_y_vel_d.get()));
+		//设置xy轴控制器增益
+		_control.setyPositionGains(Vector3f(_param_y_vel_p.get(), _param_y_vel_i.get(), _param_y_vel_d.get()) , Vector3f(_param_x_vel_p.get(), _param_x_vel_i.get(), _param_x_vel_d.get()));
 
 		// Check that the design parameters are inside the absolute maximum constraints
 		if (_param_mpc_xy_cruise.get() > _param_mpc_xy_vel_max.get()) {
@@ -471,8 +471,10 @@ void MulticopterPositionControl::Run()
 
 			_control.setState(states);
 
+			y_servo_out_s y_servo_out;
+
 			// Run position control
-			if (_control.update(dt)) {
+			if (_control.update(dt , y_servo_out)) {
 				_failsafe_land_hysteresis.set_state_and_update(false, time_stamp_now);
 
 			} else {
@@ -494,8 +496,11 @@ void MulticopterPositionControl::Run()
 
 				_control.setInputSetpoint(failsafe_setpoint);
 				_control.setVelocityLimits(_param_mpc_xy_vel_max.get(), _param_mpc_z_vel_max_up.get(), _param_mpc_z_vel_max_dn.get());
-				_control.update(dt);
+				_control.update(dt  , y_servo_out);
 			}
+				y_servo_out.timestamp = hrt_absolute_time();
+				//y_servo_out.y_servo_out_value = 0;
+				_y_servo_out_pub.publish(y_servo_out);
 
 			// Publish internal position control setpoints
 			// on top of the input/feed-forward setpoints these containt the PID corrections
@@ -538,7 +543,7 @@ void MulticopterPositionControl::Run()
 		_z_reset_counter = local_pos.z_reset_counter;
 		_heading_reset_counter = local_pos.heading_reset_counter;
 
-		y_servo_pub(dt);
+
 	}
 
 	perf_end(_cycle_perf);
@@ -661,16 +666,6 @@ logging.
 	return 0;
 }
 
-//发布y轴控制输出到姿态控制，统一发送舵机输出
-void MulticopterPositionControl::y_servo_pub(const float dt)
-{
-	y_servo_out_s y_servo_out;
-	_control.y_position_control_servo(dt, y_servo_out);
-	y_servo_out.timestamp = hrt_absolute_time();
-	//y_servo_out.y_servo_out_value = 0;
-	_y_servo_out_pub.publish(y_servo_out);
-
-}
 
 extern "C" __EXPORT int mc_pos_control_main(int argc, char *argv[])
 {

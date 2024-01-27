@@ -4,3 +4,5 @@ uint64 timestamp_sample     # the timestamp of the raw data (microseconds)
 
 float32 y_servo_out_value			# y轴控制输出
 float32 y_error					# y轴误差
+float32 x_servo_out_value			# y轴控制输出
+float32 x_error					# y轴误差

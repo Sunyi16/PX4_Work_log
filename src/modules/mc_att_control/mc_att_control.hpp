@@ -109,7 +109,7 @@ private:
 
 	float		abs_f(float value);
 
-	void		pitch_setpoint_set();
+	float		pitch_setpoint_set();
 
 
 	AttitudeControl _attitude_control; ///< class for attitude control calculations
@@ -134,6 +134,8 @@ private:
 	struct manual_control_setpoint_s	_manual_control_setpoint {};	/**< manual control setpoint */
 	struct vehicle_control_mode_s		_v_control_mode {};	/**< vehicle control mode */
 	struct y_servo_out_s		_y_servo_value;
+	struct manual_control_setpoint_s	_manual_setpoint;	/**< manual control setpoint */
+
 
 	perf_counter_t	_loop_perf;			/**< loop duration performance counter */
 
@@ -157,7 +159,7 @@ private:
 	uint8_t _quat_reset_counter{0};
 
 	/*自定义变量*/
-	float pitch_setpoint;
+	//float pitch_setpoint;
 	float servo_setpoint;
 	struct actuator_controls_s actuator2;
 

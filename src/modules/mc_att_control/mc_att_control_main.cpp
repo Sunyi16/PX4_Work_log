@@ -117,11 +117,15 @@ MulticopterAttitudeControl::throttle_curve(float throttle_stick_input)
 	}
 }
 
-void
+float
 MulticopterAttitudeControl::pitch_setpoint_set(){
 
+	 _manual_control_setpoint_sub.copy(&_manual_setpoint);
 	//pitch姿态的期望改为遥控遥感的映射，40度的极限值
-	pitch_setpoint =_manual_control_setpoint.aux1 * float(_man_tilt_pitch);
+	float pitch_setpoint =_manual_setpoint.aux1 * float(_man_tilt_pitch);
+
+	return pitch_setpoint;
+
 }
 
 void
@@ -174,8 +178,7 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt,
 	Eulerf euler_sp = q_sp_rpy;
 	attitude_setpoint.roll_body = euler_sp(0);
 
-	pitch_setpoint_set();
-	attitude_setpoint.pitch_body = pitch_setpoint;
+	attitude_setpoint.pitch_body = euler_sp(1);
 
 	// The axis angle can change the yaw as well (noticeable at higher tilt angles).
 	// This is the formula by how much the yaw changes:
@@ -239,8 +242,8 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt,
 	_vehicle_attitude_setpoint_pub.publish(attitude_setpoint);
 
 	// update attitude controller setpoint immediately
-	pitch_setpoint_set();
-	_attitude_control.setAttitudeSetpoint(q_sp, attitude_setpoint.yaw_sp_move_rate, pitch_setpoint);
+	float pitch1 = pitch_setpoint_set();
+	_attitude_control.setAttitudeSetpoint(q_sp, attitude_setpoint.yaw_sp_move_rate, pitch1);
 	_thrust_setpoint_body = Vector3f(attitude_setpoint.thrust_body);
 	_last_attitude_setpoint = attitude_setpoint.timestamp;
 }
@@ -257,11 +260,10 @@ void
 MulticopterAttitudeControl::servo_pub(){
 	float servo_one = 2.0f*float(Pi) *_param_servo_range.get() / (360.0f*2000.0f);	//舵机每1us是多少弧度
 
+	float pitch = pitch_setpoint_set();
 	//遥控输入到舵机输出映射，保证pitch
-	servo_setpoint = float((abs_f(pitch_setpoint) / servo_one)/500.0f);
-	if(pitch_setpoint <= 0) servo_setpoint = -servo_setpoint;
-	//fmu1
-	actuator2.control[5] = servo_setpoint;
+	servo_setpoint = float((abs_f(pitch) / servo_one)/500.0f);
+	if(pitch <= 0) servo_setpoint = -servo_setpoint;
 
 	//接收位置控制传来的y轴控制输出，分配为舵机输出
 	if (_y_servo_out_sub.updated()) {
@@ -270,32 +272,45 @@ MulticopterAttitudeControl::servo_pub(){
 
 	}
 	float y_out =_y_servo_value.y_servo_out_value;
+	float x_out =_y_servo_value.x_servo_out_value;
 
 	if(!_v_control_mode.flag_control_position_enabled)
 	   {
 		y_out = 0;
+		x_out = 0;
+
 	   }
 
-	//假定往前移动为正
-	if(y_out > 20){
-		y_out = 20;
+	float servo1 = float(Pi)/(9.0f*servo_one*500.0f);
+
+
+	if(y_out > servo1){
+		y_out = servo1;
 	}
-	else if(y_out < -20){
-		y_out = -20;
+	else if(y_out < -servo1){
+		y_out = -servo1;
 	}
-	if(y_out >= -20 && y_out <= 20){
-		y_out = ((y_out * float(Pi) / 180.0f)/servo_one)/500.0f;
+
+	if(x_out > servo1){
+		x_out = servo1;
+	}
+	else if(x_out < -servo1){
+		x_out = -servo1;
+	}
+
+
+	if(y_out >= -servo1 && y_out <= servo1){
 
 		if(y_out >= 0){
 			actuator2.control[1] = 0;
 			actuator2.control[2] = 0;
-			actuator2.control[3] = y_out;
-			actuator2.control[4] = y_out;
+			actuator2.control[3] = -y_out;
+			actuator2.control[4] = -y_out;
 
 		}
 		else if(y_out < 0){
-			actuator2.control[1] = y_out;
-			actuator2.control[2] = y_out;
+			actuator2.control[1] = -y_out;
+			actuator2.control[2] = -y_out;
 			actuator2.control[3] = 0;
 			actuator2.control[4] = 0;
 
@@ -303,6 +318,8 @@ MulticopterAttitudeControl::servo_pub(){
 
 	}
 
+	//fmu1
+	actuator2.control[5] = servo_setpoint + x_out;
 
 	actuator2.timestamp = hrt_absolute_time();
 
@@ -348,8 +365,8 @@ MulticopterAttitudeControl::Run()
 
 			if (_vehicle_attitude_setpoint_sub.copy(&vehicle_attitude_setpoint)
 			    && (vehicle_attitude_setpoint.timestamp > _last_attitude_setpoint)) {
-				pitch_setpoint_set();
-				_attitude_control.setAttitudeSetpoint(Quatf(vehicle_attitude_setpoint.q_d), vehicle_attitude_setpoint.yaw_sp_move_rate, pitch_setpoint);
+				float pitch_set = pitch_setpoint_set();
+				_attitude_control.setAttitudeSetpoint(Quatf(vehicle_attitude_setpoint.q_d), vehicle_attitude_setpoint.yaw_sp_move_rate, pitch_set);
 				_thrust_setpoint_body = Vector3f(vehicle_attitude_setpoint.thrust_body);
 				_last_attitude_setpoint = vehicle_attitude_setpoint.timestamp;
 			}
@@ -419,7 +436,7 @@ MulticopterAttitudeControl::Run()
 				// 把pitch设为遥控输入
 				float yaw = Eulerf(q).psi();
 				float roll = Eulerf(q).phi();
-				float pitch = pitch_setpoint;
+				float pitch = Eulerf(q).theta();
 
 				Quatf q_chance = Eulerf(roll, pitch, yaw);
 				float chance[4];

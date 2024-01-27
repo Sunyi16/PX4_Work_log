@@ -102,12 +102,14 @@ void PositionControl::setInputSetpoint(const vehicle_local_position_setpoint_s &
 	_yawspeed_sp = setpoint.yawspeed;
 }
 
-bool PositionControl::update(const float dt)
+bool PositionControl::update(const float dt , y_servo_out_s &y_servo_out)
 {
 	bool valid = _inputValid();
 
 	if (valid) {
 		_positionControl();
+
+		y_position_control_servo(dt, y_servo_out);
 		_velocityControl(dt);
 
 		_yawspeed_sp = PX4_ISFINITE(_yawspeed_sp) ? _yawspeed_sp : 0.f;
@@ -137,16 +139,34 @@ void PositionControl::_positionControl()
 	_vel_sp(2) = math::constrain(_vel_sp(2), -_lim_vel_up, _lim_vel_down);
 }
 
+//自定义控制器
 void PositionControl::y_position_control_servo(const float dt, y_servo_out_s &y_servo_out){
 
-	float y_errors = _vel_sp(1) - _vel(1);
-	float y_servo_out_m = y_errors * float(_gain_y_pid(0)) + y_errors * _gain_y_pid(1) * dt - _vel_dot(1) * _gain_y_pid(2);
-	//float y_error = 4 - 2;
-	y_servo_out.y_error = y_errors;
-	y_servo_out.y_servo_out_value = y_servo_out_m;
+	float vel_sp_1 = sinf(-_yaw)*_vel_sp(0) + cosf(-_yaw)*_vel_sp(1);
+	float vel_sp_0 = -sinf(-_yaw)*_vel_sp(1) + cosf(-_yaw)*_vel_sp(0);
 
+	float vel_1 = sinf(-_yaw)*_vel(0) + cosf(-_yaw)*_vel(1);
+	float vel_0 = -sinf(-_yaw)*_vel(1) + cosf(-_yaw)*_vel(0);
+
+	//float vel_dot_1 = (pre_vel_1 - vel_1) / dt;
+	float vel_dot_0 = (pre_vel_0 - vel_0) / dt;
+
+	//float y_errors = vel_sp_1 - vel_1;
+	//float y_servo_out_m = y_errors * float(_gain_y_pid(0)) + y_errors * _gain_y_pid(1) * dt - vel_dot_1 * _gain_y_pid(2);
+	//float y_error = 4 - 2;
+	y_servo_out.y_error = vel_sp_1;
+	y_servo_out.y_servo_out_value = _yaw;
+
+	float x_errors = vel_sp_0 - vel_0;
+	float x_servo_out_m = x_errors * float(_gain_x_pid(0)) + x_errors * _gain_x_pid(1) * dt - vel_dot_0 * _gain_x_pid(2);
+	//float y_error = 4 - 2;
+	y_servo_out.x_error = vel_sp_0;
+	y_servo_out.x_servo_out_value = x_servo_out_m;
+	pre_vel_0 = vel_0;
+	pre_vel_1 = vel_1;
 
 }
+
 
 void PositionControl::_velocityControl(const float dt)
 {

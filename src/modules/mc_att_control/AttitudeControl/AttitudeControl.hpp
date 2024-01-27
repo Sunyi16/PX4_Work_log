@@ -77,11 +77,13 @@ public:
 	 * @param qd desired vehicle attitude setpoint
 	 * @param yawspeed_setpoint [rad/s] yaw feed forward angular rate in world frame
 	 */
+
+	//设置位置控制过来的姿态期望
 	void setAttitudeSetpoint(const matrix::Quatf &qd, const float yawspeed_setpoint, float pitch_setpoint)
 	{
 
-		float roll = matrix::Eulerf(qd).phi();
-		float pitch = 0.0f;
+		float roll = 0.0f;
+		float pitch =pitch_setpoint;
 		float yaw = matrix::Eulerf(qd).psi();
 		_attitude_setpoint_q = matrix::Eulerf(roll, pitch, yaw);
 		_attitude_setpoint_q.normalize();

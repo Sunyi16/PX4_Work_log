@@ -890,3 +890,34 @@ PARAM_DEFINE_FLOAT(ANG_Y_VEL_I, 0.0f);
  * @group Multicopter Position Control
  */
 PARAM_DEFINE_FLOAT(ANG_Y_VEL_D, 0.0f);
+
+/**
+ * Proportional gain for x-position velocity
+ *
+ * p of the pid
+ *
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(ANG_X_VEL_P, 0.5f);
+
+/**
+ * Integral gain for x-position velocity
+ *
+ * i of the pid
+ *
+ *
+ * @decimal 3
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(ANG_X_VEL_I, 0.0f);
+
+/**
+ * Differential gain for x-position velocity
+ *
+ * x d of the pid
+ *
+ * @decimal 3
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(ANG_X_VEL_D, 0.0f);
