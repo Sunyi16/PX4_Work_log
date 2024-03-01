@@ -1,0 +1,12 @@
+menuconfig MODULES_SK100
+	bool "sk100"
+	default n
+	---help---
+		Enable support for sk100
+
+menuconfig USER_sk100
+	bool "sk100 running as userspace module"
+	default y
+	depends on BOARD_PROTECTED && MODULES_SK100
+	---help---
+		Put sk100 in userspace memory
