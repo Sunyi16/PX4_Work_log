@@ -60,6 +60,7 @@ UUVPOSControl::UUVPOSControl():
 	/* performance counters */
 	_loop_perf(perf_alloc(PC_ELAPSED, MODULE_NAME": cycle"))
 {
+	UUVPOSControl::z_pre = 0;
 }
 
 UUVPOSControl::~UUVPOSControl()
@@ -131,7 +132,7 @@ void UUVPOSControl::pose_controller_6dof(const float x_pos_des, const float y_po
 
 }
 
-void UUVPOSControl::stabilization_controller_6dof(const float x_pos_des, const float y_pos_des, const float z_pos_des,
+/* void UUVPOSControl::stabilization_controller_6dof(const float x_pos_des, const float y_pos_des, const float z_pos_des,
 		const float roll_des, const float pitch_des, const float yaw_des,
 		vehicle_attitude_s &vehicle_attitude, vehicle_local_position_s &vlocal_pos)
 {
@@ -148,7 +149,7 @@ void UUVPOSControl::stabilization_controller_6dof(const float x_pos_des, const f
 	publish_attitude_setpoint(rotated_input(0) + x_pos_des, rotated_input(1) + y_pos_des, rotated_input(2),
 				  roll_des, pitch_des, yaw_des);
 
-}
+} */
 
 void UUVPOSControl::Run()
 {
@@ -167,54 +168,45 @@ void UUVPOSControl::Run()
 	/* update parameters from storage */
 	parameters_update();
 
+
+	setpoint_6dof_sub.copy(&setpoint);
+
+
 	//vehicle_attitude_s attitude;
 	vehicle_local_position_s vlocal_pos;
+
+	scd_sub.copy(&scd);
+	sk100_sub.copy(&sk100);
 
 	/* only run controller if local_pos changed */
 	if (_vehicle_local_position_sub.update(&vlocal_pos)) {
 
-		/* Run geometric attitude controllers if NOT manual mode*/
-		if (!_vcontrol_mode.flag_control_manual_enabled
-		    && _vcontrol_mode.flag_control_attitude_enabled
-		    && _vcontrol_mode.flag_control_rates_enabled) {
+			vlocal_pos.z = scd.pressure;		//单位mm
 
-			_vehicle_attitude_sub.update(&_vehicle_attitude);//get current vehicle attitude
-			_trajectory_setpoint_sub.update(&_trajectory_setpoint);
 
-			float roll_des = 0;
-			float pitch_des = 0;
-			float yaw_des = _trajectory_setpoint.yaw;
 
-			float x_pos_des = _trajectory_setpoint.x;
-			float y_pos_des = _trajectory_setpoint.y;
-			float z_pos_des = _trajectory_setpoint.z;
+			float roll_des = setpoint.setpoint_6[3];
+			float pitch_des = setpoint.setpoint_6[4];
+			float yaw_des = setpoint.setpoint_6[5];
 
-			//stabilization controller(keep pos and hold depth + angle) vs position controller(global + yaw)
-			if (_param_stabilization.get() == 0) {
-				pose_controller_6dof(x_pos_des, y_pos_des, z_pos_des,
+			float x_pos_des = setpoint.setpoint_6[0];
+			float y_pos_des = setpoint.setpoint_6[1];
+			float z_pos_des = setpoint.setpoint_6[2];
+			if(sk100.diatance < 500)
+			{
+				z_pos_des = UUVPOSControl::z_pre;
+			}
+			UUVPOSControl::z_pre = z_pos_des;
+			pose_controller_6dof(x_pos_des, y_pos_des, z_pos_des,
 						     roll_des, pitch_des, yaw_des, _vehicle_attitude, vlocal_pos);
 
-			} else {
-				stabilization_controller_6dof(x_pos_des, y_pos_des, z_pos_des,
-							      roll_des, pitch_des, yaw_des, _vehicle_attitude, vlocal_pos);
-			}
+
 		}
-	}
+	actuator2.control[4] = setpoint.setpoint_6[6]/10;
+	actuator2.control[5] = setpoint.setpoint_6[7]/10;
+	actuator_2_pub.publish(actuator2);
 
-	/* Manual Control mode (e.g. gamepad,...) - raw feedthrough no assistance */
-	if (_manual_control_setpoint_sub.update(&_manual_control_setpoint)) {
-		// This should be copied even if not in manual mode. Otherwise, the poll(...) call will keep
-		// returning immediately and this loop will eat up resources.
-		if (_vcontrol_mode.flag_control_manual_enabled && !_vcontrol_mode.flag_control_rates_enabled) {
-			/* manual/direct control */
-		}
 
-	}
-
-	/* Only publish if any of the proper modes are enabled */
-	if (_vcontrol_mode.flag_control_manual_enabled ||
-	    _vcontrol_mode.flag_control_attitude_enabled) {
-	}
 
 	perf_end(_loop_perf);
 }

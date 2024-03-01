@@ -1,0 +1,12 @@
+menuconfig MODULES_SETPOINT_6DOF
+	bool "setpoint_6dof"
+	default n
+	---help---
+		Enable support for setpoint_6dof
+
+menuconfig USER_SETPOINT_6DOF
+	bool "setpoint_6dof running as userspace module"
+	default y
+	depends on BOARD_PROTECTED && MODULES_SETPOINT_6DOF
+	---help---
+		Put setpoint_6dof in userspace memory
