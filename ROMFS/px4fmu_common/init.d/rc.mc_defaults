@@ -34,5 +34,5 @@ set MIXER quad_x
 
 set PWM_OUT 1234
 
-set MIXER_AUX steer
+set MIXER_AUX pass
 set PWM_AUX_OUT 1234
