@@ -352,7 +352,7 @@ void FlightTaskManualAltitude::_updateSetpoints()
 	_man_input_filter.setParameters(_deltatime, _param_mc_man_tilt_tau.get());
 	_man_input_filter.update(sp);
 	sp = _man_input_filter.getState();
-	_rotateIntoHeadingFrame(sp);
+	//_rotateIntoHeadingFrame(sp);
 
 	if (sp.longerThan(1.0f)) {
 		sp.normalize();

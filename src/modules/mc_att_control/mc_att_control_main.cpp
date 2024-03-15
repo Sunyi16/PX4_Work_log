@@ -272,7 +272,7 @@ MulticopterAttitudeControl::servo_pub(){
 
 	}
 	float y_out =_y_servo_value.y_servo_out_value;
-	float x_out =_y_servo_value.x_servo_out_value;
+	float x_out =-_y_servo_value.x_servo_out_value;
 
 	if(!_v_control_mode.flag_control_position_enabled)
 	   {
