@@ -56,6 +56,7 @@
 #include <uORB/topics/vehicle_land_detected.h>
 #include <vtol_att_control/vtol_type.h>
 #include <lib/mathlib/math/filter/AlphaFilter.hpp>
+#include <uORB/topics/adrc_u.h>
 
 #include <AttitudeControl.hpp>
 
@@ -97,7 +98,7 @@ private:
 	/**
 	 * Generate & publish an attitude setpoint from stick inputs
 	 */
-	void		generate_attitude_setpoint(const matrix::Quatf &q, float dt, bool reset_yaw_sp);
+	void		generate_attitude_setpoint(const matrix::Quatf &q, float dt);
 
 	AttitudeControl _attitude_control; ///< class for attitude control calculations
 
@@ -108,7 +109,9 @@ private:
 	uORB::Subscription _autotune_attitude_control_status_sub{ORB_ID(autotune_attitude_control_status)};
 	uORB::Subscription _manual_control_setpoint_sub{ORB_ID(manual_control_setpoint)};	/**< manual control setpoint subscription */
 	uORB::Subscription _vehicle_status_sub{ORB_ID(vehicle_status)};			/**< vehicle status subscription */
-	uORB::Subscription _vehicle_land_detected_sub{ORB_ID(vehicle_land_detected)};	/**< vehicle land detected subscription */
+	uORB::Subscription adrc_u_sub{ORB_ID(adrc_u)};		//订阅adrc控制中的中间变量
+	uORB::Subscription _vehicle_land_detected_sub{ORB_ID(vehicle_land_detected)};
+
 
 	uORB::SubscriptionCallbackWorkItem _vehicle_attitude_sub{this, ORB_ID(vehicle_attitude)};
 
@@ -117,6 +120,7 @@ private:
 
 	struct manual_control_setpoint_s	_manual_control_setpoint {};	/**< manual control setpoint */
 	struct vehicle_control_mode_s		_v_control_mode {};	/**< vehicle control mode */
+	struct adrc_u_s adrcu {};
 
 	perf_counter_t	_loop_perf;			/**< loop duration performance counter */
 
@@ -126,6 +130,9 @@ private:
 	float _man_tilt_max;			/**< maximum tilt allowed for manual flight [rad] */
 	AlphaFilter<float> _man_x_input_filter;
 	AlphaFilter<float> _man_y_input_filter;
+	//AlphaFilter<float> _man_r_input_filter;
+
+
 
 	hrt_abstime _last_run{0};
 	hrt_abstime _last_attitude_setpoint{0};
@@ -160,7 +167,15 @@ private:
 		(ParamInt<px4::params::MPC_THR_CURVE>) _param_mpc_thr_curve,				/**< throttle curve behavior */
 
 		(ParamInt<px4::params::MC_AIRMODE>) _param_mc_airmode,
-		(ParamFloat<px4::params::MC_MAN_TILT_TAU>) _param_mc_man_tilt_tau
+		(ParamFloat<px4::params::MC_MAN_TILT_TAU>) _param_mc_man_tilt_tau,
+		(ParamFloat<px4::params::MC_ATT_H0>) _param_mc_att_h0,
+		(ParamFloat<px4::params::MC_ATT_R0>) _param_mc_att_r0,
+		(ParamFloat<px4::params::MC_ATT_L1>) _param_mc_att_l1,
+		(ParamFloat<px4::params::MC_ATT_L2>) _param_mc_att_l2,
+		(ParamFloat<px4::params::MC_ATT_L3>) _param_mc_att_l3,
+		(ParamFloat<px4::params::MC_ATT_NUM_MIN>) _param_mc_att_num_min,
+		(ParamFloat<px4::params::MC_ATT_K1>) _param_mc_att_k1,
+		(ParamFloat<px4::params::MC_ATT_K2>) _param_mc_att_k2
 	)
 };
 

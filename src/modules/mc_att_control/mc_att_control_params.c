@@ -158,3 +158,84 @@ PARAM_DEFINE_FLOAT(MC_YAWRATE_MAX, 200.0f);
  * @group Multicopter Position Control
  */
 PARAM_DEFINE_FLOAT(MC_MAN_TILT_TAU, 0.0f);
+
+/**
+ * TD h0
+ *
+ * Setting this parameter of the TD h0
+ *
+ * @decimal 2
+ * @group Multicopter Attitude Control
+ */
+PARAM_DEFINE_FLOAT(MC_ATT_H0, 0.01f);
+
+
+/**
+ * TD r0
+ *
+ * Setting this parameter of the TD r0
+ *
+ * @decimal 2
+ * @group Multicopter Attitude Control
+ */
+PARAM_DEFINE_FLOAT(MC_ATT_R0, 200.0f);
+
+/**
+ * ESO l1
+ *
+ * Setting this parameter of the ESO l1
+ *
+ * @decimal 2
+ * @group Multicopter Attitude Control
+ */
+PARAM_DEFINE_FLOAT(MC_ATT_L1, 2.0f);
+
+/**
+ * ESO l2
+ *
+ * Setting this parameter of the ESO l2
+ *
+ * @decimal 2
+ * @group Multicopter Attitude Control
+ */
+PARAM_DEFINE_FLOAT(MC_ATT_L2, 1.0f);
+
+/**
+ * ESO l3
+ *
+ * Setting this parameter of the ESO l3
+ *
+ * @decimal 2
+ * @group Multicopter Attitude Control
+ */
+PARAM_DEFINE_FLOAT(MC_ATT_L3, 0.5f);
+
+/**
+ * ESO num_min
+ *
+ * Setting this parameter of the ESO num_min
+ *
+ * @decimal 2
+ * @group Multicopter Attitude Control
+ */
+PARAM_DEFINE_FLOAT(MC_ATT_NUM_MIN, 0.001f);
+
+/**
+ * SEF K1
+ *
+ * Setting this parameter of the SEF K1
+ *
+ * @decimal 2
+ * @group Multicopter Attitude Control
+ */
+PARAM_DEFINE_FLOAT(MC_ATT_K1, 100.0f);
+
+/**
+ * SEF K2
+ *
+ * Setting this parameter of the SEF K2
+ *
+ * @decimal 2
+ * @group Multicopter Attitude Control
+ */
+PARAM_DEFINE_FLOAT(MC_ATT_K2, 15.0f);

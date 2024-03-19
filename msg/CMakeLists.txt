@@ -206,6 +206,7 @@ set(msg_files
 	wind.msg
 	yaw_estimator_status.msg
 	scd.msg
+	adrc_u.msg
 )
 
 if(NOT px4_constrained_flash_build)

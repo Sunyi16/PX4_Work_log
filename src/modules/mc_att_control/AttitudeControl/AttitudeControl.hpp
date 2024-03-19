@@ -48,13 +48,19 @@
 
 #pragma once
 
-#include <matrix/matrix/math.hpp>
+//#include <matrix/matrix/math.hpp>
 #include <mathlib/math/Limits.hpp>
+#include "dcm.hpp"
+#include <uORB/topics/vehicle_angular_velocity.h>
+#include <uORB/topics/adrc_u.h>
+#include <uORB/Subscription.hpp>
+#include <uORB/Publication.hpp>
+#include <uORB/SubscriptionCallback.hpp>
 
 class AttitudeControl
 {
 public:
-	AttitudeControl() = default;
+	AttitudeControl() =default;
 	~AttitudeControl() = default;
 
 	/**
@@ -75,11 +81,10 @@ public:
 	 * @param qd desired vehicle attitude setpoint
 	 * @param yawspeed_setpoint [rad/s] yaw feed forward angular rate in world frame
 	 */
-	void setAttitudeSetpoint(const matrix::Quatf &qd, const float yawspeed_setpoint)
+	void setAttitudeSetpoint(const matrix::Quatf &qd)
 	{
 		_attitude_setpoint_q = qd;
 		_attitude_setpoint_q.normalize();
-		_yawspeed_setpoint = yawspeed_setpoint;
 	}
 
 	/**
@@ -93,12 +98,39 @@ public:
 		_attitude_setpoint_q.normalize();
 	}
 
+	uORB::Publication<adrc_u_s>	adrc_u_pub{ORB_ID(adrc_u)};
+	adrc_u_s adrc;
+
+	//最速跟踪函数
+	matrix::Vector3f fhan(Dcmf x1, Dcmf x_d, Vector3f x2);
+
+
 	/**
 	 * Run one control loop cycle calculation
 	 * @param q estimation of the current vehicle attitude unit quaternion
 	 * @return [rad/s] body frame 3D angular rate setpoint vector to be executed by the rate controller
 	 */
-	matrix::Vector3f update(const matrix::Quatf &q) const;
+	matrix::Vector3f update(const matrix::Quatf &q, modd *modd_param);
+
+	//参数定义
+	float h0;
+	float r0;
+	float l1;
+	float l2;
+	float l3;
+	float num_min;
+	float k1;
+	float k2;
+
+
+	//自定义ADRC中间变量
+/* 	Dcmf x1;
+	Vector3f x2;
+	Dcmf z1;
+	Dcmf z2;
+	Dcmf z3;
+	Vector3f u;*/
+	Dcmf J;
 
 private:
 	matrix::Vector3f _proportional_gain;

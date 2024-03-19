@@ -39,6 +39,7 @@
 #include <mathlib/math/Functions.hpp>
 #include <px4_platform_common/events.h>
 
+
 using namespace matrix;
 using namespace time_literals;
 using math::radians;
@@ -238,8 +239,14 @@ MulticopterRateControl::Run()
 				_rate_control.setSaturationStatus(saturation_positive, saturation_negative);
 			}
 
+			/*****************************************************接收姿态控制器ADRC发布的控制输出，替换原始控制输出****************************************************************************/
+			adrc_u_sub.update(&adrcu);
 			// run rate controller
-			const Vector3f att_control = _rate_control.update(rates, _rates_sp, angular_accel, dt, _maybe_landed || _landed);
+			Vector3f att_control ;
+			att_control(0) = adrcu.adrc_u[0];
+			att_control(1) = adrcu.adrc_u[1];
+			att_control(2) = adrcu.adrc_u[2];
+
 
 			// publish rate controller status
 			rate_ctrl_status_s rate_ctrl_status{};
