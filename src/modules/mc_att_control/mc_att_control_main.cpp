@@ -100,12 +100,12 @@ MulticopterAttitudeControl::parameters_updated()
 	_man_tilt_max = math::radians(_param_mpc_man_tilt_max.get());
 
 	//参数传递
-	_attitude_control.h0 = _param_mc_att_h0.get();
+	_attitude_control.h0 = _param_mc_att_h0.get()/100.0f;
 	_attitude_control.r0 = _param_mc_att_r0.get();
 	_attitude_control.l1 = _param_mc_att_l1.get();
 	_attitude_control.l2 = _param_mc_att_l2.get();
 	_attitude_control.l3 = _param_mc_att_l3.get();
-	_attitude_control.num_min = _param_mc_att_num_min.get();
+	_attitude_control.num_min = _param_mc_att_num_min.get()/100.0f;
 	_attitude_control.k1 = _param_mc_att_k1.get();
 	_attitude_control.k2 = _param_mc_att_k2.get();
 
@@ -332,11 +332,12 @@ MulticopterAttitudeControl::Run()
 				_man_y_input_filter.reset(0.f);
 			}
 
-			float a[3][3] = {0.3};
-			float b[3] = {0.5};
+			float a[3][3] = {{1,0,0},{0,1,0},{0,0,1}};
+			float b[3] = {0};
 			modd modd_param = {Dcmf(a),Dcmf(a),Dcmf(a),Dcmf(a),Vector3f(b),Vector3f(b)};
 			if(adrc_u_sub.update(&adrcu)){
 				modd_param = {Dcmf(adrcu.v1),Dcmf(adrcu.z1),Dcmf(adrcu.z_2),Dcmf(adrcu.z_3),Vector3f(adrcu.v2),Vector3f(adrcu.adrc_u)};
+				//printf("adrcu:%f,%f",float(adrcu.test[0]), float(adrcu.test[1]));
 			}
 
 

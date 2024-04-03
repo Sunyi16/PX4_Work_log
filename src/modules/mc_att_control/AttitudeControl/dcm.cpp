@@ -31,6 +31,31 @@ Dcmf matrix_t(Dcmf b_matrix)
 	return a_matrix;
 }
 
+//矩阵重规范化
+Dcmf dcm_1(Dcmf a){
+	Dcmf b;
+	float xy_error = a(0,0)*a(1,0)+a(0,1)*a(1,1)+a(0,2)*a(1,2);
+	float x[3] = {a(0,0)-a(1,0)*xy_error/2,a(0,1)-a(1,1)*xy_error/2,a(0,2)-a(1,2)*xy_error/2};
+	float x_all = sqrt(x[0]*x[0]+x[1]*x[1]+x[2]*x[2]);
+	float y[3] = {a(1,0)-a(0,0)*xy_error/2,a(1,1)-a(0,1)*xy_error/2,a(1,2)-a(0,2)*xy_error/2};
+	float y_all = sqrt(y[0]*y[0]+y[1]*y[1]+y[2]*y[2]);
+	float z[3] = {x[1]*y[2]-y[1]*x[2],y[0]*x[2]-x[0]*y[2],x[0]*y[1]-x[1]*y[0]};
+	float z_all = sqrt(z[0]*z[0]+z[1]*z[1]+z[2]*z[2]);
+	b(0,0)= x[0]/x_all;
+	b(0,1)= x[1]/x_all;
+	b(0,2)= x[2]/x_all;
+
+	b(1,0)= y[0]/y_all;
+	b(1,1)= y[1]/y_all;
+	b(1,2)= y[2]/y_all;
+
+	b(2,0)= z[0]/z_all;
+	b(2,1)= z[1]/z_all;
+	b(2,2)= z[2]/z_all;
+
+	return b;
+}
+
 //矩阵求行列式
 float dcm_abs(Dcmf a){
 	float sum1=a(0,2)*a(1,0)*a(2,1)+a(0,1)*a(1,2)*a(2,0)+a(0,0)*a(1,1)*a(2,2);
@@ -42,8 +67,16 @@ float dcm_abs(Dcmf a){
 }
 
 //向量的绝对值
-float vec_abs(Vector3f a){
+/* float vec_abs(Vector3f a){
 	float sum = sqrt(a(0)*a(0)+a(1)*a(1)+a(2)*a(2));
+	return sum;
+} */
+
+Vector3f vec_abs(Vector3f a, float d){
+	Vector3f sum;
+	for (int i=0;i<3;i++){
+		sum(i) = sqrt(d*(d+8*abs(a(i))));
+	}
 	return sum;
 }
 
@@ -142,7 +175,7 @@ Vector3f dcm_vec(Dcmf a, Vector3f b){
 Dcmf num_dcm(float a, Dcmf b){
 	Dcmf c;
 	for (int i=0; i<3; i++){
-		for (int j; j<3; j++){
+		for (int j =0; j<3; j++){
 			c(i,j) = b(i,j)* a;
 		}
 	}
@@ -220,7 +253,7 @@ Vector3f Vector3fjian_num(Vector3f vecA, float a) {
 //fsg
 Vector3f fsg(Vector3f a, float b){
 	Vector3f c;
-	c = num_vec(0.5f,(vec_sign(Vector3fAdd_num(a,b)),vec_sign(Vector3fjian_num(a,b))));
+	c = num_vec(0.5f,Vector3fjian(vec_sign(Vector3fAdd_num(a,b)),vec_sign(Vector3fjian_num(a,b))));
 	return c;
 }
 

@@ -55,7 +55,7 @@ void AttitudeControl::setProportionalGain(const matrix::Vector3f &proportional_g
 }
 
 
-matrix::Vector3f AttitudeControl::fhan(Dcmf v1, Dcmf x_d, Vector3f x2)
+/* matrix::Vector3f AttitudeControl::fhan(Dcmf v1, Dcmf x_d, Vector3f x2)
 {
 	Vector3f out_v1 = num_vec(0.5, vee(matrix_a(dcm_dcm(matrix_t(x_d),v1),dcm_dcm(matrix_t(v1),x_d),-1)));
 	Vector3f fh;
@@ -70,10 +70,28 @@ matrix::Vector3f AttitudeControl::fhan(Dcmf v1, Dcmf x_d, Vector3f x2)
 	Vector3f fha = vec_fan(fh);
 	return fha;
 
-}
+} */
+
+matrix::Vector3f AttitudeControl::fhan(Dcmf v1, Dcmf x_d, Vector3f x2)
+{
+	Vector3f out_v1 = num_vec(0.5, vee(matrix_a(dcm_dcm(matrix_t(x_d),v1),dcm_dcm(matrix_t(v1),x_d),-1)));
+	Vector3f fh;
+	float d = r0*h0*h0;
+	Vector3f a0 = num_vec(h0,x2);
+	Vector3f y = Vector3fAdd(out_v1,a0);
+
+	Vector3f a1 = vec_abs(y,d);
+	Vector3f a2 = Vector3fAdd(a0,num_vec(0.5,vec_vec(num_jian_vec(-d,vec_fan(a1)),vec_sign(y))));
+	Vector3f a = Vector3fAdd(vec_vec(Vector3fAdd(a0,y),fsg(y,d)), vec_vec(a2,num_jian_vec(1,fsg(y,d))));
+	fh = Vector3fAdd(vec_vec(num_vec(r0/d, a), fsg(a,d)), vec_vec(num_vec(r0,vec_sign(a)), num_jian_vec(1, fsg(a,d))));
+	Vector3f fha = vec_fan(fh);
+	return fha;
+
+}//自定义
 
 matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 {
+
 
 	 //Dcmf x1_pre = modd_param.x1_pre;
 	 //Dcmf z1_pre = modd_param.z1_pre;
@@ -87,15 +105,24 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 
 	Dcmf x_d(qd);
 	Dcmf x(q);
-
+	/* x_d = dcm_1(x_d);
+	x = dcm_1(x); */
+	//Vector3f x_dd = num_vec(0.5, vee(matrix_a(dcm_dcm(matrix_t(x_d),x),dcm_dcm(matrix_t(x),x_d),-1)));
+	//adrc.test[0]= x_dd(0);
+	//adrc.test[1]= x_dd(1);
+	//adrc.test[2]= x_dd(2);
 
 /*****************************************ADRC第一步：TD*********************************************/
- 	Dcmf x1 = Dcmf(matrix_a(modd_param->x1_pre,dcm_dcm(modd_param->x1_pre,wedge(modd_param->x2_pre)),1));
-	Vector3f x2 = Vector3fAdd(modd_param->x2_pre,fhan(modd_param->x1_pre,x_d,modd_param->x2_pre));
+	Dcmf x1 = dcm_1(matrix_a(modd_param->x1_pre, dcm_dcm(num_dcm(h,modd_param->x1_pre),wedge(modd_param->x2_pre)),1));
+	//Dcmf x1 = matrix_a(modd_param->x1_pre,num_dcm(h, dcm_dcm(modd_param->x1_pre,wedge(modd_param->x2_pre))),1);
+ 	//Dcmf x1 = Dcmf(dcm_dcm(modd_param->x1_pre,dcm_dcm(modd_param->x1_pre,wedge(modd_param->x2_pre))));
+ 	//Dcmf x1 = dcm_1(matrix_a(modd_param->x1_pre,wedge(modd_param->x2_pre),1));
+	Vector3f x2 = Vector3fAdd(modd_param->x2_pre,num_vec(h, fhan(modd_param->x1_pre,x_d,modd_param->x2_pre)));
 
 
 /******************************************第二步：ESO*****************************************************/
-	Dcmf z1 = matrix_a(modd_param->z1_pre,  matrix_a(modd_param->z2_pre ,num_dcm(l1/num_min, matrix_a(modd_param->z1_pre,x1,-1)),-1),1);
+	Dcmf z1 = dcm_1(matrix_a(modd_param->z1_pre, num_dcm(h, matrix_a(modd_param->z2_pre ,num_dcm(l1/num_min, matrix_a(modd_param->z1_pre,x,-1)),-1)),1));
+	//Dcmf z1 = dcm_dcm(modd_param->z1_pre,  matrix_a(modd_param->z2_pre ,num_dcm(l1/num_min, matrix_a(modd_param->z1_pre,x1,-1)),-1));
 	J(0,0) = 0.1;
 	J(1,1) = 0.1;
 	J(2,2) = 0.3;
@@ -105,27 +132,34 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 	J(1,2) = 0;
 	J(2,1) = 0;
 	J(2,0) = 0;
-	Dcmf z_add2 =matrix_a(matrix_a(matrix_a(dcm_dcm(dcm_dcm(modd_param->z2_pre,matrix_t(x)),modd_param->z2_pre),modd_param->z3_pre,-1),num_dcm(l2/(num_min*num_min),matrix_a(modd_param->z1_pre,x,-1)),-1),dcm_dcm(dcm_dcm(x,matrix_t(J)),wedge(modd_param->u_pre)),1);
-	Dcmf z2 = matrix_a(modd_param->z2_pre, z_add2, 1);
-	Dcmf z3 = matrix_a(modd_param->z3_pre,num_dcm(l3/(num_min*num_min*num_min),matrix_a(modd_param->z1_pre,x,-1)),-1);
+	//Dcmf z_add2 =matrix_a(matrix_a(matrix_a(dcm_dcm(dcm_dcm(modd_param->z2_pre,matrix_t(x)),modd_param->z2_pre),modd_param->z3_pre,-1),num_dcm(l2/(num_min*num_min),matrix_a(modd_param->z1_pre,x,-1)),-1),dcm_dcm(dcm_dcm(x,matrix_t(J)),wedge(modd_param->u_pre)),1);
+	Dcmf z_add2 =matrix_a(matrix_a(dcm_dcm(dcm_dcm(x,matrix_inv(J,3)),wedge(modd_param->u_pre)),num_dcm(l2/(num_min*num_min),matrix_a(modd_param->z1_pre,x,-1)),-1),modd_param->z3_pre,-1);
+	Dcmf z2 =matrix_a(modd_param->z2_pre,num_dcm(h, z_add2), 1);
+	//Dcmf z2 =dcm_1(dcm_dcm(modd_param->z2_pre, z_add2));
+	Dcmf z3 = matrix_a(modd_param->z3_pre,num_dcm(h, num_dcm(l3/(num_min*num_min*num_min),matrix_a(modd_param->z1_pre,x,-1))),-1);
+	//Dcmf z3 = dcm_1(dcm_dcm(modd_param->z3_pre,num_dcm(-l3/(num_min*num_min*num_min),matrix_a(modd_param->z1_pre,x,-1))));
 
 
-	Vector3f z2_true = vee(dcm_dcm(matrix_inv(z1,3),z2));
-	Vector3f z3_true = vee(dcm_dcm(dcm_dcm(J,matrix_t(z1)),z3));
+	Vector3f z2_true = vee(dcm_dcm(matrix_t(x),z2));
+	Vector3f z3_true = vee(dcm_dcm(dcm_dcm(J,matrix_t(x)),z3));
 
 /**********************************************第三步：DLSEF，非线性组合******************************************************/
 
 
 	Vector3f e1 =num_vec(-1/2, vee(matrix_a( dcm_dcm(matrix_t(x1),z1),dcm_dcm(matrix_t(z1),x1),-1)));
 	Vector3f e2 = Vector3fjian(x2, dcm_vec( dcm_dcm(matrix_t(x1),z1), z2_true));
-	Vector3f u0 = Vector3fAdd( num_vec(k1,e1),num_vec(k2,e2));
+	Vector3f u0 = Vector3fAdd( num_vec(-k1,e1),num_vec(-k2,e2));
 
 /*************************************************第四步：扰动补偿***************************************************************************/
-	Vector3f u = Vector3fjian(u0,z3_true);//添加了扰动补偿，陀螺仪误差较大时，会产生漂移
-	//u = u0;
-	u =Constrain_Vector3f(u,-450,450);
+	//u0 = Vector3fjian(u0,z3_true);//添加了扰动补偿，陀螺仪误差较大时，会产生漂移
+	Vector3f u =Constrain_Vector3f(u0,-450,450);
 
 /***********************把控制量发到速度控制统一处理******************************************/
+
+	adrc.test[0] = matrix_a(modd_param->z1_pre,x,-1)(0,1);
+	adrc.test[1] = num_dcm(2000.0f, matrix_a(modd_param->z1_pre,x,-1))(0,1);
+	adrc.test[2] = matrix_a(modd_param->z2_pre ,num_dcm(l1/num_min, matrix_a(modd_param->z1_pre,x,-1)),-1)(0,1);
+
 	adrc.timestamp = hrt_absolute_time();
 	adrc.adrc_u[0] = u(0);
 	adrc.adrc_u[1] = u(1);
@@ -182,8 +216,33 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 	adrc.z_3[6] = z3(2,0);
 	adrc.z_3[7] = z3(2,1);
 	adrc.z_3[8] = z3(2,2);
-
 	adrc_u_pub.publish(adrc);
+
+
+
+/* ********************************************************ADRC***********************************************************/
+
+/* 	Vector3f att_sp;
+	Vector3f att;
+	att_sp(0) =  Eulerf(qd).theta();
+	att_sp(1) =  Eulerf(qd).phi();
+	att_sp(2) =  Eulerf(qd).psi();
+
+	att(0) =  Eulerf(q).theta();
+	att(1) =  Eulerf(q).phi();
+	att(2) =  Eulerf(q).psi();
+
+	static Fhan_Data ADRC_Pitch={0},ADRC_Roll={0},ADRC_Yaw{0};
+	ADRC_Init(&ADRC_Pitch,&ADRC_Roll,&ADRC_Yaw);
+	Vector3f torque;
+	torque(0)= ADRC_Control(&ADRC_Pitch , att_sp(0) , att(0));
+	torque(1)= ADRC_Control(&ADRC_Roll , att_sp(1) , att(1));
+	torque(2)= ADRC_Control(&ADRC_Yaw , att_sp(2) , att(2));
+	adrc.adrc_u[0]= torque(0);
+	adrc.adrc_u[1]= torque(1);
+	adrc.adrc_u[2]= torque(2);
+
+	adrc_u_pub.publish(adrc);  */
 
 /*****************************************以下为源码控制，为了后续完整性，保留这一部分，但是最后发给控制分配的是ADRC控制输出******************************************************************/
 

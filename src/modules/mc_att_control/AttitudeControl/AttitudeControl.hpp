@@ -51,11 +51,14 @@
 //#include <matrix/matrix/math.hpp>
 #include <mathlib/math/Limits.hpp>
 #include "dcm.hpp"
+#include "adrc.h"
 #include <uORB/topics/vehicle_angular_velocity.h>
 #include <uORB/topics/adrc_u.h>
 #include <uORB/Subscription.hpp>
 #include <uORB/Publication.hpp>
 #include <uORB/SubscriptionCallback.hpp>
+
+#define h 0.002
 
 class AttitudeControl
 {
@@ -97,6 +100,7 @@ public:
 		_attitude_setpoint_q = q_delta * _attitude_setpoint_q;
 		_attitude_setpoint_q.normalize();
 	}
+
 
 	uORB::Publication<adrc_u_s>	adrc_u_pub{ORB_ID(adrc_u)};
 	adrc_u_s adrc;

@@ -6,7 +6,7 @@ using namespace matrix;
 Vector3f Constrain_Vector3f(Vector3f amt, float low, float high);
 Dcmf matrix_t(Dcmf b_matrix);
 float dcm_abs(Dcmf a);
-float vec_abs(Vector3f a);
+Vector3f vec_abs(Vector3f a, float d);
 Vector3f vec_sign(Vector3f a);
 Vector3f vee(Dcmf a);
 Dcmf wedge(Vector3f a);
@@ -26,6 +26,7 @@ Vector3f vec_vec(Vector3f a, Vector3f b);
 Vector3f vec_fan(Vector3f a);
 float fabhs(double x);
 Dcmf  matrix_inv(Dcmf a_matrix, int ndimen);
+Dcmf dcm_1(Dcmf a);
 
 
 typedef struct {

@@ -167,7 +167,7 @@ PARAM_DEFINE_FLOAT(MC_MAN_TILT_TAU, 0.0f);
  * @decimal 2
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ATT_H0, 0.01f);
+PARAM_DEFINE_FLOAT(MC_ATT_H0, 0.3f);
 
 
 /**
@@ -178,7 +178,7 @@ PARAM_DEFINE_FLOAT(MC_ATT_H0, 0.01f);
  * @decimal 2
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ATT_R0, 200.0f);
+PARAM_DEFINE_FLOAT(MC_ATT_R0, 100.0f);
 
 /**
  * ESO l1
@@ -218,7 +218,7 @@ PARAM_DEFINE_FLOAT(MC_ATT_L3, 0.5f);
  * @decimal 2
  * @group Multicopter Attitude Control
  */
-PARAM_DEFINE_FLOAT(MC_ATT_NUM_MIN, 0.001f);
+PARAM_DEFINE_FLOAT(MC_ATT_NUM_MIN, 0.1f);
 
 /**
  * SEF K1

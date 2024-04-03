@@ -34,6 +34,8 @@
 px4_add_library(AttitudeControl
 	AttitudeControl.cpp
 	AttitudeControl.hpp
+	adrc.cpp
+	adrc.h
 	dcm.cpp
 	dcm.hpp
 )
