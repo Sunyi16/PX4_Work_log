@@ -79,7 +79,24 @@ void Steering_engine::run()
 			parameters_updated();
 		}
 		/*publish the pwm_value*/
-		_actuators2.control[4] = Pwm_value;
+		float a, b, c, d, e, f;
+
+
+/*******************************************************************************************************/
+
+
+
+
+
+
+		_actuators2.control[0] = a;
+		_actuators2.control[1] = b;
+		_actuators2.control[2] = c;
+		_actuators2.control[3] = d;
+		_actuators2.control[4] = e;
+		_actuators2.control[5] = f;
+
+
 		_actuators2.timestamp = hrt_absolute_time();
 		_actuators2_set.publish(_actuators2);
 		PX4_INFO("runing");
