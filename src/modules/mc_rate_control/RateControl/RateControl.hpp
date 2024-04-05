@@ -43,6 +43,7 @@
 
 #include <lib/mixer/MultirotorMixer/MultirotorMixer.hpp>
 #include <uORB/topics/rate_ctrl_status.h>
+#include "adrc.h"
 
 class RateControl
 {

@@ -60,8 +60,13 @@ Vector3f RateControl::update(const Vector3f &rate, const Vector3f &rate_sp, cons
 	// angular rates error
 	Vector3f rate_error = rate_sp - rate;
 
-	// PID control with feed forward
-	const Vector3f torque = _gain_p.emult(rate_error) + _rate_int - _gain_d.emult(angular_accel) + _gain_ff.emult(rate_sp);
+	// ADRC control start
+	static Fhan_Data ADRC_Pitch={0},ADRC_Roll={0},ADRC_Yaw{0};
+	ADRC_Init(&ADRC_Pitch,&ADRC_Roll,&ADRC_Yaw);
+	Vector3f torque;
+	torque(0)= ADRC_Control(&ADRC_Pitch , rate_sp(0) , rate(0));
+	torque(1)= ADRC_Control(&ADRC_Roll , rate_sp(1) , rate(1));
+	torque(2)= ADRC_Control(&ADRC_Yaw , rate_sp(2) , rate(2));
 
 	// update integral only if we are not landed
 	if (!landed) {
