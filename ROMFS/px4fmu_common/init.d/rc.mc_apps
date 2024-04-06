@@ -83,5 +83,4 @@ mc_pos_control start
 #
 land_detector start multicopter
 
-steering_engine start
 param set-default PWM_VALUE 1000
