@@ -584,6 +584,50 @@ ControlAllocator::publish_control_allocator_status()
 	_control_allocator_status_pub.publish(control_allocator_status);
 }
 
+//水面航行控制函数
+void
+ControlAllocator::boat_control()
+{
+	float x_move = manual_msg.z;	//取出遥控器油门通道的控制量,控制船前进(0-1)
+	float r_move = manual_msg.r;	//取出遥控器偏航控制量，控制船转弯（-1-1）
+	float servo_move = manual_msg.aux1;	//取出遥控器控制舵机的aux量（-1-1）
+
+	float r_move_abs;
+	if(manual_msg.r < 0)
+	{
+		r_move_abs = - manual_msg.r;
+	}
+	else
+	r_move_abs = manual_msg.r;
+
+	float motor1_2 = 2000.0f*x_move;	//将其映射到电机的pwm0-2000，当油门遥感推到中位时，电机转动
+	float motor_dif = 200.0f*r_move_abs;	//通过遥控的转弯信号定好电机的差速量，此处限制单个差速最大为500pwm，速度较低，保证稳定，后期可调
+
+	if(r_move <= 0){
+		motor_pwm[0] = motor1_2 + motor_dif;	//1号电机
+		motor_pwm[1] = motor1_2 - motor_dif;	//2号电机
+	}
+	else if(r_move > 0)
+	{
+		motor_pwm[0] = motor1_2 - motor_dif;
+		motor_pwm[1] = motor1_2 + motor_dif;
+	}
+
+	//限制电机最大转速
+	if(motor_pwm[0]>2000.0f){
+		motor_pwm[0] = 2000.0f;
+	}
+	if(motor_pwm[1]>2000.0f){
+		motor_pwm[1] = 2000.0f;
+	}
+
+	//将电机pwm值归一化
+	motor_pwm[0] = (motor_pwm[0] - 1500)/500;
+	motor_pwm[1] = (motor_pwm[1] - 1500)/500;
+	motor_pwm[2] = servo_move;
+}
+
+
 void
 ControlAllocator::publish_actuator_controls()
 {
@@ -601,6 +645,11 @@ ControlAllocator::publish_actuator_controls()
 	int actuator_idx_matrix[ActuatorEffectiveness::MAX_NUM_MATRICES] {};
 
 	uint32_t stopped_motors = _actuator_effectiveness->getStoppedMotors();
+
+/********************以下部分是电机和舵机的输出代码，我们要在这作出判断，如果遥控输入aux1不为0则切换为我们的水上航行模式****************/
+/**********************motor1-4为四个电机输出量，motor7和motor8为舵机输出量与aux1直接映射********************************************************/
+/**********************切换后，遥控的油门通道控制前进，偏航通道控制转弯，34电机停止工作，12电机继续，2在左，1在右************************/
+
 
 	// motors
 	int motors_idx;
@@ -622,7 +671,23 @@ ControlAllocator::publish_actuator_controls()
 		actuator_motors.control[i] = NAN;
 	}
 
+	/**********************************作出判断，加载水面航行控制分配*****************************/
+
+	_manual_sub.copy(&manual_msg);
+	if(manual_msg.aux1 >= 0.0f){
+		boat_control();
+		actuator_motors.control[0] = motor_pwm[0];
+		actuator_motors.control[1] = motor_pwm[1];
+		actuator_motors.control[2] = -3.0f;
+		actuator_motors.control[3] = -3.0f;
+		actuator_motors.control[4] = motor_pwm[2];
+		actuator_motors.control[5] = motor_pwm[2];
+	}
+
+	//发布电机执行量
 	_actuator_motors_pub.publish(actuator_motors);
+
+
 
 	// servos
 	if (_num_actuators[1] > 0) {
