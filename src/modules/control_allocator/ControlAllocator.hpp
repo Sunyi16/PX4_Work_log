@@ -73,8 +73,6 @@
 #include <uORB/topics/vehicle_torque_setpoint.h>
 #include <uORB/topics/vehicle_thrust_setpoint.h>
 #include <uORB/topics/vehicle_status.h>
-//引入遥控输入信息头文件
-#include <uORB/topics/manual_control_setpoint.h>
 
 
 class ControlAllocator : public ModuleBase<ControlAllocator>, public ModuleParams, public px4::ScheduledWorkItem
@@ -133,18 +131,6 @@ private:
 	void publish_control_allocator_status();
 
 	void publish_actuator_controls();
-
-	//水面航行控制分配函数
-	void boat_control();
-
-	//定义接收遥控输入信息的结构体
-	manual_control_setpoint_s manual_msg;
-
-	//定义中间变量
-	float motor_pwm[3];
-
-	//订阅接收遥控器信息函数
-	uORB::Subscription _manual_sub{ORB_ID(manual_control_setpoint)};
 
 	AllocationMethod _allocation_method_id{AllocationMethod::NONE};
 	ControlAllocation *_control_allocation[ActuatorEffectiveness::MAX_NUM_MATRICES] {}; 	///< class for control allocation calculations
