@@ -590,7 +590,7 @@ ControlAllocator::boat_control()
 {
 	float x_move = manual_msg.z;	//取出遥控器油门通道的控制量,控制船前进(0-1)
 	float r_move = manual_msg.r;	//取出遥控器偏航控制量，控制船转弯（-1-1）
-	float servo_move = manual_msg.aux1;	//取出遥控器控制舵机的aux量（-1-1）
+	float servo_move = manual_msg.aux1;	//取出遥控器控制舵机的aux量（0-1）
 
 	float r_move_abs;
 	if(manual_msg.r < 0)
@@ -674,7 +674,7 @@ ControlAllocator::publish_actuator_controls()
 	/**********************************作出判断，加载水面航行控制分配*****************************/
 
 	_manual_sub.copy(&manual_msg);
-	if(manual_msg.aux1 >= 0.0f){
+	if(manual_msg.aux1 > 0.0f){
 		boat_control();
 		actuator_motors.control[0] = motor_pwm[0];
 		actuator_motors.control[1] = motor_pwm[1];
