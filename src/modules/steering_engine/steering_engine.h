@@ -12,7 +12,9 @@
 #include <stdint.h>
 #include<px4_platform_common/module.h>
 #include <px4_platform_common/module_params.h>
-#include<msg/tmp/headers/actuator_controls.h>
+
+#include<uORB/topics/actuator_controls.h>
+
 #include <uORB/Publication.hpp>
 #include <uORB/Subscription.hpp>
 #include <uORB/topics/parameter_update.h>
