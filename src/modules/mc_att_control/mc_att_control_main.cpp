@@ -223,6 +223,7 @@ MulticopterAttitudeControl::generate_attitude_setpoint(const Quatf &q, float dt)
 	_attitude_control.setAttitudeSetpoint(q_sp);
 	_thrust_setpoint_body = Vector3f(attitude_setpoint.thrust_body);
 	_last_attitude_setpoint = attitude_setpoint.timestamp;
+	att_aetpoint = Dcmf(Quatf(attitude_setpoint.q_d[0], attitude_setpoint.q_d[1], attitude_setpoint.q_d[2], attitude_setpoint.q_d[3]));
 }
 
 void
@@ -331,11 +332,43 @@ MulticopterAttitudeControl::Run()
 				_man_x_input_filter.reset(0.f);
 				_man_y_input_filter.reset(0.f);
 			}
+			generate_attitude_setpoint(q, dt);		//注意
 
-			float a[3][3] = {{1,0,0},{0,1,0},{0,0,1}};
+//初始化
+			Dcmf x_d(att_aetpoint);
+			Dcmf x(q);
+			Vector3f e =num_vec(-1/2, vee(matrix_a( dcm_dcm(matrix_t(x_d),x),dcm_dcm(matrix_t(x),x_d),-1)));
+
+			float norm = sqrt(e(0) *e(0) +e(1) *e(1) +e(2) *e(2));	//2范数
+			Vector3f d(0,0,0);	//扰动
+
+			Dcmf v__1;
+			v__1 = Dcmf(x);
+
+			static int initialize = 0;	//标志位,静态变量
+
+			_angle_rate.update(&angle_vel);
+
+			Vector3f angle_vel1 = Vector3f(angle_vel.xyz);
+			Dcmf z__2 = dcm_dcm(x, wedge(angle_vel1));
+
+			float J_data[3][3] = {0.1,0,0,0,0.1,0,0,0,0.3};
+			Dcmf J(J_data);
+
+			Dcmf z__3 = matrix_a( dcm_dcm(dcm_dcm(x, matrix_inv(J,3)), wedge(d))  ,dcm_dcm(dcm_dcm(x, matrix_inv(J,3)), wedge(dcm_vec(dcm_dcm(wedge(angle_vel1), J), angle_vel1))) , -1);
+
+			//float a[3][3] = {{1,0,0},{0,1,0},{0,0,1}};
 			float b[3] = {0};
-			modd modd_param = {Dcmf(a),Dcmf(a),Dcmf(a),Dcmf(a),Vector3f(b),Vector3f(b)};
+			modd modd_param = {v__1,x,z__2,z__3,Vector3f(b),Vector3f(b)};
+
 			if(adrc_u_sub.update(&adrcu)){
+				if(initialize && norm > 1){
+					modd_param = {v__1,Dcmf(adrcu.z1),Dcmf(adrcu.z_2),Dcmf(adrcu.z_3),Vector3f(adrcu.v2),Vector3f(adrcu.adrc_u)};	//重新赋初值
+					initialize = 0;
+					}
+				else if(norm < 0.1)
+					initialize = 1;
+
 				modd_param = {Dcmf(adrcu.v1),Dcmf(adrcu.z1),Dcmf(adrcu.z_2),Dcmf(adrcu.z_3),Vector3f(adrcu.v2),Vector3f(adrcu.adrc_u)};
 				//printf("adrcu:%f,%f",float(adrcu.test[0]), float(adrcu.test[1]));
 			}

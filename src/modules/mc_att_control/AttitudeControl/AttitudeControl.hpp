@@ -52,7 +52,6 @@
 #include <mathlib/math/Limits.hpp>
 #include "dcm.hpp"
 #include "adrc.h"
-#include <uORB/topics/vehicle_angular_velocity.h>
 #include <uORB/topics/adrc_u.h>
 #include <uORB/Subscription.hpp>
 #include <uORB/Publication.hpp>
@@ -136,11 +135,11 @@ public:
 	Vector3f u;*/
 	Dcmf J;
 
+
 private:
 	matrix::Vector3f _proportional_gain;
 	matrix::Vector3f _rate_limit;
 	float _yaw_w{0.f}; ///< yaw weight [0,1] to deprioritize caompared to roll and pitch
-
 	matrix::Quatf _attitude_setpoint_q; ///< latest known attitude setpoint e.g. from position control
 	float _yawspeed_setpoint{0.f}; ///< latest known yawspeed feed-forward setpoint
 };

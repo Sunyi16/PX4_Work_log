@@ -57,6 +57,7 @@
 #include <vtol_att_control/vtol_type.h>
 #include <lib/mathlib/math/filter/AlphaFilter.hpp>
 #include <uORB/topics/adrc_u.h>
+#include <uORB/topics/vehicle_angular_velocity.h>
 
 #include <AttitudeControl.hpp>
 
@@ -85,6 +86,8 @@ public:
 
 	bool init();
 
+	Dcmf att_aetpoint;
+
 private:
 	void Run() override;
 
@@ -112,6 +115,8 @@ private:
 	uORB::Subscription adrc_u_sub{ORB_ID(adrc_u)};		//订阅adrc控制中的中间变量
 	uORB::Subscription _vehicle_land_detected_sub{ORB_ID(vehicle_land_detected)};
 
+	uORB::Subscription _angle_rate{ORB_ID(vehicle_angular_velocity)};
+
 
 	uORB::SubscriptionCallbackWorkItem _vehicle_attitude_sub{this, ORB_ID(vehicle_attitude)};
 
@@ -120,7 +125,8 @@ private:
 
 	struct manual_control_setpoint_s	_manual_control_setpoint {};	/**< manual control setpoint */
 	struct vehicle_control_mode_s		_v_control_mode {};	/**< vehicle control mode */
-	struct adrc_u_s adrcu {};
+	struct adrc_u_s 		adrcu {};
+	struct vehicle_angular_velocity_s 		angle_vel {};
 
 	perf_counter_t	_loop_perf;			/**< loop duration performance counter */
 
