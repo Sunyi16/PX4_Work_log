@@ -332,11 +332,15 @@ MulticopterAttitudeControl::Run()
 				_man_x_input_filter.reset(0.f);
 				_man_y_input_filter.reset(0.f);
 			}
-			generate_attitude_setpoint(q, dt);		//注意
 
 //初始化
 			Dcmf x_d(att_aetpoint);
+			//PX4_WARN("DATA:%f%f%f", att_aetpoint(0,0), att_aetpoint(0,1), att_aetpoint(0,2));
 			Dcmf x(q);
+
+			//PX4_WARN("DATA:%f%f%f", x(0,0), x(1,1), x(2,2));
+
+
 			Vector3f e =num_vec(-1/2, vee(matrix_a( dcm_dcm(matrix_t(x_d),x),dcm_dcm(matrix_t(x),x_d),-1)));
 
 			float norm = sqrt(e(0) *e(0) +e(1) *e(1) +e(2) *e(2));	//2范数
@@ -345,20 +349,35 @@ MulticopterAttitudeControl::Run()
 			Dcmf v__1;
 			v__1 = Dcmf(x);
 
+			//PX4_WARN("DATA:%f%f%f", v__1(0,0), v__1(0,1), v__1(0,2));
+
+
 			static int initialize = 0;	//标志位,静态变量
 
 			_angle_rate.update(&angle_vel);
 
-			Vector3f angle_vel1 = Vector3f(angle_vel.xyz);
+			//PX4_WARN("data:%f%f%f", angle_vel.xyz[0], angle_vel.xyz[1], angle_vel.xyz[2]);
+
+			Vector3f angle_vel1 = Vector3f(angle_vel.xyz[0], angle_vel.xyz[1], angle_vel.xyz[2]);
 			Dcmf z__2 = dcm_dcm(x, wedge(angle_vel1));
+
+			//PX4_WARN("DATA:%f%f%f", z__2(0,0), z__2(0,1), z__2(0,2));
+
 
 			float J_data[3][3] = {0.1,0,0,0,0.1,0,0,0,0.3};
 			Dcmf J(J_data);
 
+			//PX4_WARN("DATA:%f%f%f", J(0,0), J(0,1), J(0,2));
+
+
 			Dcmf z__3 = matrix_a( dcm_dcm(dcm_dcm(x, matrix_inv(J,3)), wedge(d))  ,dcm_dcm(dcm_dcm(x, matrix_inv(J,3)), wedge(dcm_vec(dcm_dcm(wedge(angle_vel1), J), angle_vel1))) , -1);
+
+			//PX4_WARN("DATA:%f%f%f", z__3(0,0), z__3(0,1), z__3(0,2));
+
 
 			//float a[3][3] = {{1,0,0},{0,1,0},{0,0,1}};
 			float b[3] = {0};
+			//modd modd_param = {v__1,x,z__2,z__3,Vector3f(b),Vector3f(b)};
 			modd modd_param = {v__1,x,z__2,z__3,Vector3f(b),Vector3f(b)};
 
 			if(adrc_u_sub.update(&adrcu)){

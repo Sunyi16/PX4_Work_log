@@ -105,6 +105,9 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 
 	Dcmf x_d(qd);
 	Dcmf x(q);
+
+	//PX4_WARN("DATA:%f%f%f", x(0,0), x(1,1), x(2,2));
+
 	/* x_d = dcm_1(x_d);
 	x = dcm_1(x); */
 	//Vector3f x_dd = num_vec(0.5, vee(matrix_a(dcm_dcm(matrix_t(x_d),x),dcm_dcm(matrix_t(x),x_d),-1)));
@@ -119,9 +122,17 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
  	//Dcmf x1 = dcm_1(matrix_a(modd_param->x1_pre,wedge(modd_param->x2_pre),1));
 	Vector3f x2 = Vector3fAdd(modd_param->x2_pre,num_vec(h, fhan(modd_param->x1_pre,x_d,modd_param->x2_pre)));
 
+	//PX4_WARN("DATA:%f%f%f", x1(0,0), x1(1,1), x1(2,2));
+	//PX4_WARN("DATA:%f%f%f", x2(0), x2(1), x2(2));
+
+
 
 /******************************************第二步：ESO*****************************************************/
 	Dcmf z1 = dcm_1(matrix_a(modd_param->z1_pre, num_dcm(h, matrix_a(modd_param->z2_pre ,num_dcm(l1/num_min, matrix_a(modd_param->z1_pre,x,-1)),-1)),1));
+
+	//PX4_WARN("DATA:%f%f%f", z1(0,0), z1(1,1), z1(2,2));
+
+
 	//Dcmf z1 = dcm_dcm(modd_param->z1_pre,  matrix_a(modd_param->z2_pre ,num_dcm(l1/num_min, matrix_a(modd_param->z1_pre,x1,-1)),-1));
 	J(0,0) = 0.1;
 	J(1,1) = 0.1;
@@ -133,11 +144,24 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 	J(2,1) = 0;
 	J(2,0) = 0;
 	//Dcmf z_add2 =matrix_a(matrix_a(matrix_a(dcm_dcm(dcm_dcm(modd_param->z2_pre,matrix_t(x)),modd_param->z2_pre),modd_param->z3_pre,-1),num_dcm(l2/(num_min*num_min),matrix_a(modd_param->z1_pre,x,-1)),-1),dcm_dcm(dcm_dcm(x,matrix_t(J)),wedge(modd_param->u_pre)),1);
-	Dcmf z_add2 =matrix_a(matrix_a(dcm_dcm(dcm_dcm(x,matrix_inv(J,3)),wedge(modd_param->u_pre)),num_dcm(l2/(num_min*num_min),matrix_a(modd_param->z1_pre,x,-1)),-1),modd_param->z3_pre,-1);
+	Dcmf z_add2 =matrix_a(matrix_a(dcm_dcm(dcm_dcm(x,matrix_inv(J,3)),wedge(modd_param->u_pre)),
+	num_dcm(l2/(num_min*num_min),matrix_a(modd_param->z1_pre,x,-1)),-1),modd_param->z3_pre,-1);
+
+	Dcmf a = dcm_dcm(dcm_dcm(x,matrix_inv(J,3)),wedge(modd_param->u_pre));
+	//PX4_WARN("DATA:%f%f%f", a(0,0), a(1,1), a(2,2));
+
+
 	Dcmf z2 =matrix_a(modd_param->z2_pre,num_dcm(h, z_add2), 1);
+
+	//PX4_WARN("DATA:%f%f%f", z2(0,0), z2(1,1), z2(2,2));
+
+
 	//Dcmf z2 =dcm_1(dcm_dcm(modd_param->z2_pre, z_add2));
 	Dcmf z3 = matrix_a(modd_param->z3_pre,num_dcm(h, num_dcm(l3/(num_min*num_min*num_min),matrix_a(modd_param->z1_pre,x,-1))),-1);
 	//Dcmf z3 = dcm_1(dcm_dcm(modd_param->z3_pre,num_dcm(-l3/(num_min*num_min*num_min),matrix_a(modd_param->z1_pre,x,-1))));
+
+	//PX4_WARN("DATA:%f%f%f", z3(0,0), z3(1,1), z3(2,2));
+
 
 
 	Vector3f z2_true = vee(dcm_dcm(matrix_t(x),z2));
@@ -148,11 +172,18 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 
 	Vector3f e1 =num_vec(-1/2, vee(matrix_a( dcm_dcm(matrix_t(x1),z1),dcm_dcm(matrix_t(z1),x1),-1)));
 	Vector3f e2 = Vector3fjian(x2, dcm_vec( dcm_dcm(matrix_t(x1),z1), z2_true));
-	Vector3f u0 = Vector3fAdd( num_vec(-k1,e1),num_vec(-k2,e2));
+	//Vector3f u0 = Vector3fAdd( num_vec(-k1,e1),num_vec(-k2,e2));
+	Vector3f u0 = Vector3fAdd( num_vec(k1,e1),num_vec(k2,e2));
+
+	PX4_WARN("DATA:%f%f%f", e2(0), e2(1), e2(2));
+
 
 /*************************************************第四步：扰动补偿***************************************************************************/
-	//u0 = Vector3fjian(u0,z3_true);//添加了扰动补偿，陀螺仪误差较大时，会产生漂移
-	Vector3f u =Constrain_Vector3f(u0,-450,450);
+	Vector3f u = Vector3fjian(u0,z3_true);//添加了扰动补偿，陀螺仪误差较大时，会产生漂移
+	//Vector3f u =Constrain_Vector3f(u0,-450,450);
+
+	//PX4_WARN("DATA:%f%f%f", u(0), u(1), u(2));
+
 
 /***********************把控制量发到速度控制统一处理******************************************/
 
