@@ -12,6 +12,8 @@
 #include <px4_platform_common/i2c_spi_buses.h>
 #include <uORB/PublicationMulti.hpp>
 #include <uORB/topics/scd.h>
+#include <px4_platform_common/module_params.h>
+
 
 static constexpr uint32_t I2C_SPEED = 100 * 1000; // 传输速度
 static constexpr uint8_t I2C_ADDRESS_DEFAULT = 0x57; //设备地址0x31
@@ -55,4 +57,8 @@ private:
 
 	perf_counter_t _sample_perf{perf_alloc(PC_ELAPSED, MODULE_NAME": read")};
 	perf_counter_t _comms_errors{perf_alloc(PC_COUNT, MODULE_NAME": communication errors")};
+
+/* 	DEFINE_PARAMETERS(
+		(ParamInt<px4::params::SENS_EN_SCD>) _param_scd_en
+	) */
 };

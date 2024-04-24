@@ -161,8 +161,11 @@ then
 	sht3x start -X -a 0x45
 fi
 
-
-scd start -X
+#超声波传感器开关
+if param compare -s SENS_EN_SCD 1
+then
+	scd start -X
+fi
 
 # IR-LOCK sensor external I2C
 if param compare -s SENS_EN_IRLOCK 1

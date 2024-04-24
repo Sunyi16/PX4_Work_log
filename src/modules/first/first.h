@@ -47,7 +47,7 @@ private:
 	float angle_4;
 	float dis_tance;
 
-		DEFINE_PARAMETERS(
+	DEFINE_PARAMETERS(
 		(ParamInt<px4::params::ANGLE_ONE>) _param_angle_one,/*The angle of four arms*/
 		(ParamInt<px4::params::ANGLE_TWO>) _param_angle_two,
 		(ParamInt<px4::params::ANGLE_THREE>) _param_angle_three,

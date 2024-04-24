@@ -138,6 +138,8 @@
 # include "streams/SCALED_PRESSURE3.hpp"
 # include "streams/SMART_BATTERY_INFO.hpp"
 # include "streams/UTM_GLOBAL_POSITION.hpp"
+
+#include "streams/ULTRASONIC_SENSOR.hpp"
 #endif // !CONSTRAINED_FLASH
 
 // ensure PX4 rotation enum and MAV_SENSOR_ROTATION align
@@ -559,8 +561,11 @@ static const StreamListItem streams_list[] = {
 	create_stream_list_item<MavlinkStreamEfiStatus>(),
 #endif // EFI_STATUS_HPP
 #if defined(GPS_RTCM_DATA_HPP)
-	create_stream_list_item<MavlinkStreamGPSRTCMData>()
+	create_stream_list_item<MavlinkStreamGPSRTCMData>(),
 #endif // GPS_RTCM_DATA_HPP
+#if defined(ULTRASONIC_SENSOR_HPP)
+	create_stream_list_item<MavlinkStreamUltrasonic>()
+#endif // ULTRASONIC_SENSOR_HPP
 };
 
 const char *get_stream_name(const uint16_t msg_id)
