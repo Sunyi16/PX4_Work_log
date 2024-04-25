@@ -161,6 +161,19 @@ Dcmf dcm_dcm(Dcmf a, Dcmf b){
 
 }
 
+//矩阵乘矩阵(逐元素相乘)
+Dcmf dcm_dcm_t(Dcmf a, Dcmf b){
+	Dcmf c;
+	for(int i=0; i<3; i++){
+		for(int j=0; j<3; j++){
+			c(i,j) = a(i,j)*b(i,j);
+		}
+	}
+
+	return c;
+
+}
+
 //矩阵乘向量
 Vector3f dcm_vec(Dcmf a, Vector3f b){
 	Vector3f c;

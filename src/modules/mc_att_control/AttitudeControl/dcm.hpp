@@ -12,6 +12,7 @@ Vector3f vee(Dcmf a);
 Dcmf wedge(Vector3f a);
 Dcmf matrix_a(Dcmf b_matrix, Dcmf c_matrix, int ktrl);
 Dcmf dcm_dcm(Dcmf a, Dcmf b);
+Dcmf dcm_dcm_t(Dcmf a, Dcmf b);
 Vector3f dcm_vec(Dcmf a, Vector3f b);
 Dcmf num_dcm(float a, Dcmf b);
 Vector3f num_vec(float a, Vector3f b);

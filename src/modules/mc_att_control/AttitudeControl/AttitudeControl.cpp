@@ -153,7 +153,7 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 
 	Dcmf z2 =matrix_a(modd_param->z2_pre,num_dcm(h, z_add2), 1);
 
-	//PX4_WARN("DATA:%f%f%f", z2(0,0), z2(1,1), z2(2,2));
+	PX4_WARN("DATA:%f%f%f", z2(0,0), z2(1,1), z2(2,2));
 
 
 	//Dcmf z2 =dcm_1(dcm_dcm(modd_param->z2_pre, z_add2));
@@ -171,11 +171,11 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 
 
 	Vector3f e1 =num_vec(-1/2, vee(matrix_a( dcm_dcm(matrix_t(x1),z1),dcm_dcm(matrix_t(z1),x1),-1)));
-	Vector3f e2 = Vector3fjian(x2, dcm_vec( dcm_dcm(matrix_t(x1),z1), z2_true));
+	Vector3f e2 = Vector3fjian(x2, z2_true);
 	//Vector3f u0 = Vector3fAdd( num_vec(-k1,e1),num_vec(-k2,e2));
 	Vector3f u0 = Vector3fAdd( num_vec(k1,e1),num_vec(k2,e2));
 
-	PX4_WARN("DATA:%f%f%f", e2(0), e2(1), e2(2));
+	//PX4_WARN("DATA:%f%f%f", e2(0), e2(1), e2(2));
 
 
 /*************************************************第四步：扰动补偿***************************************************************************/
