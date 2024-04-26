@@ -199,22 +199,26 @@ AttitudeEstimatorQ::Run()
 
 	sensor_combined_s sensors;
 
+	/****该消息为传感器数据合集，在src/sensor模块，筛选出了最可信的传感器数据****/
 	if (_sensors_sub.update(&sensors)) {
 
 		update_parameters();
 
 		// Feed validator with recent sensor data
+		//获取陀螺仪数据
 		if (sensors.timestamp > 0) {
 			_gyro(0) = sensors.gyro_rad[0];
 			_gyro(1) = sensors.gyro_rad[1];
 			_gyro(2) = sensors.gyro_rad[2];
 		}
 
+		//获取加速度计数据
 		if (sensors.accelerometer_timestamp_relative != sensor_combined_s::RELATIVE_TIMESTAMP_INVALID) {
 			_accel(0) = sensors.accelerometer_m_s2[0];
 			_accel(1) = sensors.accelerometer_m_s2[1];
 			_accel(2) = sensors.accelerometer_m_s2[2];
 
+			//计算向量模长，判断数据有效性
 			if (_accel.length() < 0.01f) {
 				PX4_ERR("degenerate accel!");
 				return;
@@ -222,6 +226,7 @@ AttitudeEstimatorQ::Run()
 		}
 
 		// Update magnetometer
+		//获取磁力计数据
 		if (_magnetometer_sub.updated()) {
 			vehicle_magnetometer_s magnetometer;
 
@@ -238,8 +243,10 @@ AttitudeEstimatorQ::Run()
 
 		}
 
+		//上述执行完毕后，imu数据获取完毕，标志位_data_good改为真
 		_data_good = true;
 
+		//视觉数据
 		// Update vision and motion capture heading
 		_ext_hdg_good = false;
 
@@ -272,6 +279,7 @@ AttitudeEstimatorQ::Run()
 			}
 		}
 
+		//动作捕捉系统
 		if (_mocap_odom_sub.updated()) {
 			vehicle_odometry_s mocap;
 
@@ -393,10 +401,14 @@ AttitudeEstimatorQ::init_attq()
 {
 	// Rotation matrix can be easily constructed from acceleration and mag field vectors
 	// 'k' is Earth Z axis (Down) unit vector in body frame
+
+	//利用施密特正交化计算一组三维基坐标
+	//加速度计静止时，其数据为（0，0，g）；当有姿态角时，其数据为以上向量在机体坐标系下的新表示
 	Vector3f k = -_accel;
 	k.normalize();
 
 	// 'i' is Earth X axis (North) unit vector in body frame, orthogonal with 'k'
+	//施密特正交化
 	Vector3f i = (_mag - k * (_mag * k));
 	i.normalize();
 
@@ -413,8 +425,9 @@ AttitudeEstimatorQ::init_attq()
 	_q = R;
 
 	// Compensate for magnetic declination
+	//通过设定的参数补偿磁偏角，暂时理解为磁力计的安装方向与正方向的偏差，飞控而言就是水平安装方向
 	Quatf decl_rotation = Eulerf(0.0f, 0.0f, _mag_decl);
-	_q = _q * decl_rotation;
+	_q = _q * decl_rotation;	//暂时有疑虑，四元数旋转应该左乘q右乘q逆
 
 	_q.normalize();
 
@@ -435,6 +448,7 @@ AttitudeEstimatorQ::update(float dt)
 {
 	if (!_inited) {
 
+		//判断sensor标志位，如果获取数据错误则结束
 		if (!_data_good) {
 			return false;
 		}

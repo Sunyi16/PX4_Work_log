@@ -72,8 +72,8 @@
 #include <uORB/topics/vehicle_imu.h>
 
 #include "voted_sensors_update.h"
-#include "vehicle_acceleration/VehicleAcceleration.hpp"
-#include "vehicle_angular_velocity/VehicleAngularVelocity.hpp"
+#include "vehicle_acceleration/VehicleAcce0.leration.hpp"
+#include "vehicle_angular_velocity/VehicleA ngularVelocity.hpp"
 #include "vehicle_air_data/VehicleAirData.hpp"
 #include "vehicle_gps_position/VehicleGPSPosition.hpp"
 #include "vehicle_imu/VehicleIMU.hpp"
