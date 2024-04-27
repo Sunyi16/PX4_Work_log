@@ -429,7 +429,7 @@ AttitudeEstimatorQ::init_attq()
 	Quatf decl_rotation = Eulerf(0.0f, 0.0f, _mag_decl);
 	_q = _q * decl_rotation;	//暂时有疑虑，四元数旋转应该左乘q右乘q逆
 
-	_q.normalize();
+	_q.normalize();		//归一化
 
 	if (PX4_ISFINITE(_q(0)) && PX4_ISFINITE(_q(1)) &&
 	    PX4_ISFINITE(_q(2)) && PX4_ISFINITE(_q(3)) &&
@@ -453,7 +453,7 @@ AttitudeEstimatorQ::update(float dt)
 			return false;
 		}
 
-		return init_attq();
+		return init_attq();	//利用加速度计和磁力计获得初步旋转四元数
 	}
 
 	Quatf q_last = _q;
@@ -485,7 +485,10 @@ AttitudeEstimatorQ::update(float dt)
 	if (_param_att_ext_hdg_m.get() == 0 || !_ext_hdg_good) {
 		// Magnetometer correction
 		// Project mag field vector to global frame and extract XY component
+		//将磁力计数据从机体坐标系旋转到世界坐标系
 		Vector3f mag_earth = _q.rotateVector(_mag);
+
+		//将磁力计数据（三轴磁强)转换成方位角减去磁偏角（安装角度）
 		float mag_err = wrap_pi(atan2f(mag_earth(1), mag_earth(0)) - _mag_decl);
 		float gainMult = 1.0f;
 		const float fifty_dps = 0.873f;
