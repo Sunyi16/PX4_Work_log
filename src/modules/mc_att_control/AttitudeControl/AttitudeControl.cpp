@@ -188,8 +188,8 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 
 
 /*************************************************第四步：扰动补偿***************************************************************************/
-	Vector3f u = Vector3fjian(u0,z3_true);//添加了扰动补偿，陀螺仪误差较大时，会产生漂移
-	//Vector3f u =Constrain_Vector3f(u0,-450,450);
+	Vector3f u = Vector3fjian(u0,dcm_vec(J,z3_true));//添加了扰动补偿，陀螺仪误差较大时，会产生漂移
+	u =Constrain_Vector3f(u0,-450,450);
 
 	//PX4_WARN("DATA:%f%f%f", u(0), u(1), u(2));
 
@@ -256,6 +256,31 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 	adrc.z_3[6] = z3(2,0);
 	adrc.z_3[7] = z3(2,1);
 	adrc.z_3[8] = z3(2,2);
+
+	adrc.q[0] = x(0,0);
+	adrc.q[1] = x(0,1);
+	adrc.q[2] = x(0,2);
+	adrc.q[3] = x(1,0);
+	adrc.q[4] = x(1,1);
+	adrc.q[5] = x(1,2);
+	adrc.q[6] = x(2,0);
+	adrc.q[7] = x(2,1);
+	adrc.q[8] = x(2,2);
+
+	adrc.xd[0] = x_d(0,0);
+	adrc.xd[1] = x_d(0,1);
+	adrc.xd[2] = x_d(0,2);
+	adrc.xd[3] = x_d(1,0);
+	adrc.xd[4] = x_d(1,1);
+	adrc.xd[5] = x_d(1,2);
+	adrc.xd[6] = x_d(2,0);
+	adrc.xd[7] = x_d(2,1);
+	adrc.xd[8] = x_d(2,2);
+
+	adrc.error_eso[0] = e(0);
+	adrc.error_eso[1] = e(1);
+	adrc.error_eso[2] = e(2);
+
 	adrc_u_pub.publish(adrc);
 
 

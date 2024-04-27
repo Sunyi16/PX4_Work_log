@@ -9,5 +9,7 @@ float32[3] z3
 float32[9] test
 float32[9] z_2
 float32[9] z_3
-
+float32[9] q
+float32[9] xd
+float32[3] error_eso
 

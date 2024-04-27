@@ -375,9 +375,9 @@ MulticopterAttitudeControl::Run()
 			//PX4_WARN("DATA:%f%f%f", z__3(0,0), z__3(0,1), z__3(0,2));
 
 
-			//float a[3][3] = {{1,0,0},{0,1,0},{0,0,1}};
+			float a[3][3] = {{1,0,0},{0,1,0},{0,0,1}};
 			float b[3] = {0};
-			//modd modd_param = {v__1,x,z__2,z__3,Vector3f(b),Vector3f(b)};
+			//modd modd_param = {Dcmf(a),Dcmf(a),Dcmf(a),Dcmf(a),Vector3f(b),Vector3f(b)};
 			modd modd_param = {v__1,x,z__2,z__3,Vector3f(b),Vector3f(b)};
 
 			if(adrc_u_sub.update(&adrcu)){
@@ -391,6 +391,10 @@ MulticopterAttitudeControl::Run()
 				modd_param = {Dcmf(adrcu.v1),Dcmf(adrcu.z1),Dcmf(adrcu.z_2),Dcmf(adrcu.z_3),Vector3f(adrcu.v2),Vector3f(adrcu.adrc_u)};
 				//printf("adrcu:%f,%f",float(adrcu.test[0]), float(adrcu.test[1]));
 			}
+
+/* 			if(adrc_u_sub.update(&adrcu)){
+				modd_param = {Dcmf(adrcu.v1),Dcmf(adrcu.z1),Dcmf(adrcu.z_2),Dcmf(adrcu.z_3),Vector3f(adrcu.v2),Vector3f(adrcu.adrc_u)};
+			} */
 
 
 			Vector3f rates_sp = _attitude_control.update(q,&modd_param);
