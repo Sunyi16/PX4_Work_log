@@ -288,6 +288,8 @@ Vector3f vec_vec(Vector3f a, Vector3f b){
 	return c;
 }
 
+
+
 //向量取反
 Vector3f vec_fan(Vector3f a){
 	Vector3f c;
