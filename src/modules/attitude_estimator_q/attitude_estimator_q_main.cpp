@@ -488,7 +488,7 @@ AttitudeEstimatorQ::update(float dt)
 		//将磁力计数据从机体坐标系旋转到世界坐标系
 		Vector3f mag_earth = _q.rotateVector(_mag);
 
-		//将磁力计数据（三轴磁强)转换成方位角减去磁偏角（安装角度）
+		//将磁力计数据（三轴磁强)转换成方位角减去磁偏角（安装时，角度偏差）
 		float mag_err = wrap_pi(atan2f(mag_earth(1), mag_earth(0)) - _mag_decl);
 		float gainMult = 1.0f;
 		const float fifty_dps = 0.873f;
