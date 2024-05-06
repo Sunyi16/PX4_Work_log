@@ -488,7 +488,8 @@ AttitudeEstimatorQ::update(float dt)
 		//将磁力计数据从机体坐标系旋转到世界坐标系
 		Vector3f mag_earth = _q.rotateVector(_mag);
 
-		//将磁力计数据（三轴磁强)转换成方位角减去磁偏角（安装时，角度偏差）
+		//将磁力计数据（三轴磁强)转换成方位角减去磁偏角（地球磁场与指北方向的差）
+		//如果没有误差，则补偿磁偏后应该为0，否则便可以当作误差
 		float mag_err = wrap_pi(atan2f(mag_earth(1), mag_earth(0)) - _mag_decl);
 		float gainMult = 1.0f;
 		const float fifty_dps = 0.873f;
@@ -498,7 +499,8 @@ AttitudeEstimatorQ::update(float dt)
 		}
 
 		// Project magnetometer correction to body frame
-		corr += _q.rotateVectorInverse(Vector3f(0.0f, 0.0f, -mag_err)) * _param_att_w_mag.get() * gainMult;
+		//
+		corr += _q.rotateVectorInverse(Vector3f(0.0f, 0.0f, -mag_err)) * _param_att_w_mag.get() * gainMult; //磁力计偏差，补偿陀螺仪
 	}
 
 	_q.normalize();
@@ -508,6 +510,7 @@ AttitudeEstimatorQ::update(float dt)
 	// Project 'k' unit vector of earth frame to body frame
 	// Vector3f k = _q.rotateVectorInverse(Vector3f(0.0f, 0.0f, 1.0f));
 	// Optimized version with dropped zeros
+	//k-把重力加速度向量转到机体系
 	Vector3f k(
 		2.0f * (_q(1) * _q(3) - _q(0) * _q(2)),
 		2.0f * (_q(2) * _q(3) + _q(0) * _q(1)),
@@ -523,7 +526,7 @@ AttitudeEstimatorQ::update(float dt)
 	if (_param_att_acc_comp.get() || ((accel_norm_sq > lower_accel_limit * lower_accel_limit) &&
 					  (accel_norm_sq < upper_accel_limit * upper_accel_limit))) {
 
-		corr += (k % (_accel - _pos_acc).normalized()) * _param_att_w_acc.get();
+		corr += (k % (_accel - _pos_acc).normalized()) * _param_att_w_acc.get(); //加速度计偏差加到磁力计偏差上一起补偿陀螺仪
 	}
 
 	// Gyro bias estimation
@@ -536,6 +539,7 @@ AttitudeEstimatorQ::update(float dt)
 
 	}
 
+	//加速度计和磁力计补偿陀螺仪
 	_rates = _gyro + _gyro_bias;
 
 	// Feed forward gyro

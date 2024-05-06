@@ -396,7 +396,7 @@ void VotedSensorsUpdate::sensorsPoll(sensor_combined_s &raw)
 {
 	imuPoll(raw);
 
-	calcAccelInconsistency();
+	calcAccelInconsistency();	//校正误差并补偿
 	calcGyroInconsistency();
 
 	sensors_status_imu_s status{};
