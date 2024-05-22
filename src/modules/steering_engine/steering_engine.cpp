@@ -21,18 +21,12 @@ int Steering_engine::custom_command(int argc, char *argv[])
 Steering_engine::Steering_engine():
 	ModuleParams(nullptr)
 {
-	previous_time = 0;
-	parameters_updated();
+	PX4_WARN("runing");
 }
 
 Steering_engine::~Steering_engine()
 {
 	PX4_WARN("hased");
-}
-
-void Steering_engine::parameters_updated()
-{
-        rpm_value_set = (float)_param_pwm_value.get();
 }
 
 int Steering_engine::task_spawn(int argc, char *argv[])
@@ -68,49 +62,30 @@ void Steering_engine::run()
 
 	while(!PX4_OK)
 	{
-		/*update params, if the value of PWM_VALUE has changed*/
-		if (_params_sub.updated())
-		{
-			// clear update
-			parameter_update_s param_update;
-			_params_sub.copy(&param_update);
-			updateParams();
-			parameters_updated();
-		}
-		/*publish the pwm_value*/
-		_actuators2.control[4] = (rpm_control(rpm_value_set)-1500)/500;
-		_actuators2.timestamp = hrt_absolute_time();
-		_actuators2_set.publish(_actuators2);
-		PX4_INFO("runing");
+	sensor_combined_s sensors;
+
+	if (sensor_sub.update(&sensors)){
+		gyro[0] = sensors.gyro_rad[0];
+		gyro[1] = sensors.gyro_rad[1];
+		gyro[2] = sensors.gyro_rad[2];
+		accel[0] = sensors.accelerometer_m_s2[0];
+		accel[1] = sensors.accelerometer_m_s2[1];
+		accel[2] = sensors.accelerometer_m_s2[2];
 	}
-}
+        pitch = Imu_Update(gyro[0], gyro[1], gyro[2], accel[0], accel[1], accel[2], 1);
+        roll = Imu_Update(gyro[0], gyro[1], gyro[2], accel[0], accel[1], accel[2], 0);
 
-void Steering_engine::rpm_act(){
+        att_mahony_s att_h = {};
+	att_h.pitch = pitch;
+	att_h.roll = roll;
+	//printf("data:%d",(double)att[0]);
+	/* the instance count is not used here */
+	att_h.timestamp = hrt_absolute_time();
+	_att_pub.publish(att_h);
 
-	if(scd_value_sub.updated()){
-		struct scd_s scd_value;
-		scd_value_sub.copy(&scd_value);
-		rpm_value = scd_value.rpm;
+	PX4_INFO("data1:%f data2:%f", (double)pitch, (double)roll);
+
 	}
-	float time = hrt_absolute_time();
-	dt_v = time - previous_time;
-	previous_time = hrt_absolute_time();
-}
-
-float Steering_engine::rpm_control(float rpm_set){
-	float rpm_error = rpm_set - rpm_value;
-	rpm_act();
-	float rpm_control_out = rpm_error * _param_pwm_value_p.get() + rpm_error * dt_v * _param_pwm_value_i.get() - _param_pwm_value_d.get() * (rpm_error-previous_error)/dt_v;
-	previous_error = rpm_error;
-	if(rpm_control_out<1000){
-		rpm_control_out = 1000;
-	}
-	else if(rpm_control_out>2000){
-		rpm_control_out = 2000;
-	}
-
-	return rpm_control_out;
-
 }
 
 int Steering_engine::print_usage(const char *reason )

@@ -12,13 +12,14 @@
 #include <stdint.h>
 #include<px4_platform_common/module.h>
 #include <px4_platform_common/module_params.h>
-
 #include<uORB/topics/actuator_controls.h>
-
 #include <uORB/Publication.hpp>
 #include <uORB/Subscription.hpp>
 #include <uORB/topics/parameter_update.h>
-#include <uORB/topics/scd.h>
+#include <uORB/topics/sensor_combined.h>
+#include <uORB/topics/att_mahony.h>
+#include <lib/mahony/mahony_CG.cpp>
+
 
 __BEGIN_DECLS
 
@@ -32,34 +33,21 @@ public:
 	~Steering_engine() override;
 	static int task_spawn(int argc, char*argv[]);
 	void run()override;
-	void parameters_updated();					//update the param of PWM_VALUE
 	static Steering_engine *instantiate(int argc, char *argv[]);
 	static int custom_command(int argc, char *argv[]);
 	static int print_usage(const char *reason = nullptr);
 
 
 private:
-	float rpm_control(float rpm_set); //转速控制
-	void rpm_act();	//获取实际转速
-	float rpm_value;
-	float rpm_value_set;
-	float previous_time;
-	float previous_error;
-	float dt_v;
-	actuator_controls_s _actuators2;
-	uORB::Publication<actuator_controls_s>  _actuators2_set{ORB_ID(actuator_controls_2)};           /*pwm setpoint publication*/
-	uORB::Subscription _params_sub{ORB_ID(parameter_update)};			/**< parameter updates subscription */
-	uORB::Subscription scd_value_sub{ORB_ID(scd)};
+	uORB::Subscription sensor_sub{ORB_ID(sensor_combined)};
+	uORB::Publication<att_mahony_s>	_att_pub{ORB_ID(att_mahony)};
 
-	/*Define a param to set the pwm value*/
-	DEFINE_PARAMETERS(
-	(ParamInt<px4::params::PWM_VALUE>) _param_pwm_value,
-	(ParamInt<px4::params::PWM_VALUE_P>) _param_pwm_value_p,
-	(ParamInt<px4::params::PWM_VALUE_I>) _param_pwm_value_i,
-	(ParamInt<px4::params::PWM_VALUE_D>) _param_pwm_value_d
+	sensor_combined_s  sensor = {};
+	att_mahony_s att = {};
 
+	float gyro[3], accel[3];
+	float pitch, roll;
 
-	)
 };
 
 __END_DECLS
