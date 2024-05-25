@@ -1,9 +1,9 @@
 /**
  * @file steer_engine.h
  *
- * control motor stabilization at one value.
  *
- * @author Sunyi
+ *
+ * @author
  */
 
 #ifndef STEERING_ENGINE_H_

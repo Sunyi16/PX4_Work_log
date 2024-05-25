@@ -1,9 +1,9 @@
 /**
  * @file steer_engine.cpp
  *
- * control motor stabilization at one value.
  *
- * @author Sunyi
+ *
+ * @author
  */
 
 
