@@ -142,5 +142,6 @@
         ],
         "[cpp]": {
                 "editor.defaultFormatter": "ms-vscode.cpptools"
-        } // Added for rp2040
+        },
+        "ros.distro": "noetic" // Added for rp2040
 }
