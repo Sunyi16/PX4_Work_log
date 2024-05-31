@@ -162,7 +162,7 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 	Dcmf z2 =matrix_a(modd_param->z2_pre,num_dcm(h, z_add2), 1); */
 
 	//Vector3f z_add2 =Vector3fAdd(Vector3fAdd(vee(modd_param->z3_pre), num_vec(l2/(num_min*num_min), e)), dcm_vec(matrix_inv(J,3), modd_param->u_pre));
-	Vector3f z_add2 =Vector3fAdd(Vector3fAdd(vee(modd_param->z3_pre), num_vec(l2/(num_min*num_min), e)), dcm_vec(matrix_inv(J,3), modd_param->u_pre));
+	Vector3f z_add2 =Vector3fAdd(Vector3fAdd(vee(modd_param->z3_pre), num_vec(6000.f, e)), dcm_vec(matrix_inv(J,3), modd_param->u_pre));
 	Vector3f z2_true = Vector3fAdd(vee(modd_param->z2_pre), num_vec(h,z_add2));
 
 	//PX4_WARN("DATA:%f%f%f", z2_true(0), z2_true(1), z2_true(2));
@@ -173,7 +173,7 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 	//Dcmf z3 = matrix_a(modd_param->z3_pre,num_dcm(h, num_dcm(l3/(num_min*num_min*num_min),matrix_a(modd_param->z1_pre,x,-1))),-1);
 	//Dcmf z3 = dcm_1(dcm_dcm(modd_param->z3_pre,num_dcm(-l3/(num_min*num_min*num_min),matrix_a(modd_param->z1_pre,x,-1))));
 
-	Vector3f z3_true = Vector3fjian(vee(modd_param->z3_pre), num_vec(l3/(num_min*num_min*num_min), e));
+	Vector3f z3_true = Vector3fjian(vee(modd_param->z3_pre), num_vec(100000.f, e));
 	Dcmf z3 = wedge(z3_true);
 	//PX4_WARN("DATA:%f%f%f", z3(0,0), z3(1,1), z3(2,2));
 	//PX4_WARN("DATA:%f%f%f", z3_true(0), z3_true(1), z3_true(2));
