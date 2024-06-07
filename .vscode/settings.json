@@ -139,5 +139,6 @@
         "cortex-debug.openocdPath": "${env:PICO_SDK_PATH}/../openocd/src/openocd",
         "python.autoComplete.extraPaths": [
                 "/opt/ros/noetic/lib/python3/dist-packages"
-        ] // Added for rp2040
+        ],
+        "ros.distro": "noetic" // Added for rp2040
 }
