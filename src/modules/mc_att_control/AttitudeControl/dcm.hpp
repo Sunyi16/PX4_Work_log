@@ -28,6 +28,7 @@ Vector3f vec_fan(Vector3f a);
 float fabhs(double x);
 Dcmf  matrix_inv(Dcmf a_matrix, int ndimen);
 Dcmf dcm_1(Dcmf a);
+float trace(Dcmf a);
 
 
 typedef struct {

@@ -161,6 +161,13 @@ Dcmf dcm_dcm(Dcmf a, Dcmf b){
 
 }
 
+//求矩阵的迹
+float trace(Dcmf a){
+	float trac;
+	trac = a(0,0) + a(1,1) + a(2,2);
+	return trac;
+}
+
 //矩阵乘矩阵(逐元素相乘)
 Dcmf dcm_dcm_t(Dcmf a, Dcmf b){
 	Dcmf c;

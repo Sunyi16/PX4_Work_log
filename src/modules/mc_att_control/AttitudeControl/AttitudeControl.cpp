@@ -128,7 +128,7 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q, modd *modd_param)
 
 
 /******************************************第二步：ESO*****************************************************/
-	Vector3f e =num_vec(0.5f, vee(matrix_a( dcm_dcm(matrix_t(x),modd_param->z1_pre),dcm_dcm(matrix_t(modd_param->z1_pre),x),-1)));
+	Vector3f e =num_vec(1/(2*sqrt(1+trace(dcm_dcm(matrix_t(x),modd_param->z1_pre)))), vee(matrix_a( dcm_dcm(matrix_t(x),modd_param->z1_pre),dcm_dcm(matrix_t(modd_param->z1_pre),x),-1)));
 
 	//PX4_WARN("DATA:%f%f%f", e(0), e(1), e(2));
 
