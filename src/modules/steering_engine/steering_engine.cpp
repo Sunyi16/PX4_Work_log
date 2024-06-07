@@ -22,6 +22,7 @@ Steering_engine::Steering_engine():
 	ModuleParams(nullptr)
 {
 	PX4_WARN("runing");
+
 }
 
 Steering_engine::~Steering_engine()
@@ -59,7 +60,7 @@ Steering_engine *Steering_engine::instantiate(int argc, char *argv[])
 
 void Steering_engine::run()
 {
-
+	ScheduleOnInterval(50000);
 	while(!PX4_OK)
 	{
 	sensor_combined_s sensors;
