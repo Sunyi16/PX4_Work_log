@@ -107,6 +107,8 @@ public:
 	//最速跟踪函数
 	matrix::Vector3f fhan(Dcmf x1, Dcmf x_d, Vector3f x2);
 
+	//矩阵误差计算函数
+	matrix::Vector3f err_R(Dcmf R1, Dcmf R2);
 
 	/**
 	 * Run one control loop cycle calculation
