@@ -70,6 +70,11 @@
 #include <uORB/topics/vehicle_rates_setpoint.h>
 #include <uORB/topics/vehicle_control_mode.h>
 #include <uORB/topics/actuator_controls.h>
+
+#include <uORB/topics/setpoint_6dof.h>
+#include <uORB/topics/scd.h>
+#include <uORB/topics/sk100.h>
+
 #include <uORB/uORB.h>
 
 using matrix::Eulerf;
@@ -98,8 +103,10 @@ public:
 
 	bool init();
 
+
 private:
 	uORB::Publication<vehicle_attitude_setpoint_s> _att_sp_pub{ORB_ID(vehicle_attitude_setpoint)};
+	uORB::Publication<actuator_controls_s> actuator_2_pub{ORB_ID(actuator_controls_2)};
 
 	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
 
@@ -108,6 +115,10 @@ private:
 	uORB::Subscription _trajectory_setpoint_sub{ORB_ID(trajectory_setpoint)};
 	uORB::Subscription _vcontrol_mode_sub{ORB_ID(vehicle_control_mode)};		/**< vehicle status subscription */
 
+	uORB::Subscription setpoint_6dof_sub{ORB_ID(setpoint_6dof)};
+	uORB::Subscription scd_sub{ORB_ID(scd)};
+	uORB::Subscription sk100_sub{ORB_ID(sk100)};
+
 	uORB::SubscriptionCallbackWorkItem _vehicle_local_position_sub{this, ORB_ID(vehicle_local_position)};
 
 	//actuator_controls_s _actuators {}; /**< actuator control inputs */
@@ -115,6 +126,15 @@ private:
 	vehicle_attitude_s _vehicle_attitude {}; /**< vehicle attitude */
 	vehicle_local_position_setpoint_s _trajectory_setpoint{}; /**< vehicle position setpoint */
 	vehicle_control_mode_s _vcontrol_mode {}; /**< vehicle control mode */
+
+	struct setpoint_6dof_s setpoint;
+	struct scd_s scd;
+	struct sk100_s sk100;
+	struct actuator_controls_s actuator2;
+
+
+	int z_pre;
+
 
 	perf_counter_t	_loop_perf; /**< loop performance counter */
 
@@ -145,7 +165,7 @@ private:
 	void pose_controller_6dof(const float x_pos_des, const float y_pos_des, const float z_pos_des,
 				  const float roll_des, const float pitch_des, const float yaw_des,
 				  vehicle_attitude_s &vehicle_attitude, vehicle_local_position_s &vlocal_pos);
-	void stabilization_controller_6dof(const float x_pos_des, const float y_pos_des, const float z_pos_des,
+/* 	void stabilization_controller_6dof(const float x_pos_des, const float y_pos_des, const float z_pos_des,
 					   const float roll_des, const float pitch_des, const float yaw_des,
-					   vehicle_attitude_s &vehicle_attitude, vehicle_local_position_s &vlocal_pos);
+					   vehicle_attitude_s &vehicle_attitude, vehicle_local_position_s &vlocal_pos); */
 };

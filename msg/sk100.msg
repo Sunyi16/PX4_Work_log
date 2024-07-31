@@ -3,6 +3,5 @@ uint64 timestamp_sample
 
 uint32 device_id                     # unique device ID for the sensor that does not change between power cycles
 
-uint32 temp			#温度
+float32 diatance
 
-uint32 pressure                   # 压力

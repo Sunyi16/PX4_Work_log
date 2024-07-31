@@ -622,6 +622,9 @@ ControlAllocator::publish_actuator_controls()
 		actuator_motors.control[i] = NAN;
 	}
 
+		actuator_motors.control[4] = 0.5;
+
+
 	_actuator_motors_pub.publish(actuator_motors);
 
 	// servos
@@ -639,6 +642,7 @@ ControlAllocator::publish_actuator_controls()
 		for (int i = servos_idx; i < actuator_servos_s::NUM_CONTROLS; i++) {
 			actuator_servos.control[i] = NAN;
 		}
+
 
 		_actuator_servos_pub.publish(actuator_servos);
 	}
