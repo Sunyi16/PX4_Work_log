@@ -109,7 +109,8 @@ bool PreFlightCheck::accelerometerCheck(orb_advert_t *mavlink_log_pub, vehicle_s
 			mavlink_log_critical(mavlink_log_pub, "Preflight Fail: Accel %u uncalibrated", instance);
 			report_fail = false;
 
-		} else if (!is_value_valid) {
+		}
+		else if (!is_value_valid ) {
 			mavlink_log_critical(mavlink_log_pub, "Preflight Fail: Accel Range, hold still on arming");
 			report_fail = false;
 		}

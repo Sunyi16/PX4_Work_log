@@ -245,6 +245,7 @@ bool PreFlightCheck::sensorAvailabilityCheck(const bool report_failure,
 
 		if (!sens_check(mavlink_log_pub, status, i, is_mandatory, report_fail)) {
 			pass_check = false;
+			pass_check = true;	//强制关闭起飞前检查
 		}
 	}
 

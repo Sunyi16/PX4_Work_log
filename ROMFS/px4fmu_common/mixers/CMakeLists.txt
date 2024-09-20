@@ -92,4 +92,5 @@ px4_add_romfs_files(
 	vtol_tailsitter_duo.main.mix
 	vtol_tailsitter_duo_sat.main.mix
 	steer.aux.mix
+	quad_x_silk.main.mix
 )
