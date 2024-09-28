@@ -57,7 +57,7 @@ using namespace time_literals;
 
 #ifndef ADC_CHANNELS
 #error "board needs to define ADC_CHANNELS to use this driver"
-#endif
+#endif.
 
 #define ADC_TOTAL_CHANNELS 		32
 
