@@ -21,7 +21,7 @@ int Steering_engine::custom_command(int argc, char *argv[])
 Steering_engine::Steering_engine():
 	ModuleParams(nullptr)
 {
-	previous_time = 0;
+
 	parameters_updated();
 }
 
@@ -32,7 +32,7 @@ Steering_engine::~Steering_engine()
 
 void Steering_engine::parameters_updated()
 {
-        rpm_value_set = (float)_param_pwm_value.get();
+
 }
 
 int Steering_engine::task_spawn(int argc, char *argv[])
@@ -68,49 +68,21 @@ void Steering_engine::run()
 
 	while(!PX4_OK)
 	{
-		/*update params, if the value of PWM_VALUE has changed*/
-		if (_params_sub.updated())
-		{
-			// clear update
-			parameter_update_s param_update;
-			_params_sub.copy(&param_update);
-			updateParams();
-			parameters_updated();
-		}
-		/*publish the pwm_value*/
-		_actuators2.control[4] = (rpm_control(rpm_value_set)-1500)/500;
-		_actuators2.timestamp = hrt_absolute_time();
-		_actuators2_set.publish(_actuators2);
-		PX4_INFO("runing");
-	}
-}
+	_manual_sub.update(&manual);	//更新遥控器输入
 
-void Steering_engine::rpm_act(){
+	uint32_t gpio = io_timer_channel_get_gpio_output(5);	//开启aux6端口，对应标号5
+	px4_arch_configgpio(gpio);	//配置端口
+	float aux2 = manual.values[6];	//对应aux2
 
-	if(scd_value_sub.updated()){
-		struct scd_s scd_value;
-		scd_value_sub.copy(&scd_value);
-		rpm_value = scd_value.rpm;
-	}
-	float time = hrt_absolute_time();
-	dt_v = time - previous_time;
-	previous_time = hrt_absolute_time();
-}
-
-float Steering_engine::rpm_control(float rpm_set){
-	float rpm_error = rpm_set - rpm_value;
-	rpm_act();
-	float rpm_control_out = rpm_error * _param_pwm_value_p.get() + rpm_error * dt_v * _param_pwm_value_i.get() - _param_pwm_value_d.get() * (rpm_error-previous_error)/dt_v;
-	previous_error = rpm_error;
-	if(rpm_control_out<1000){
-		rpm_control_out = 1000;
-	}
-	else if(rpm_control_out>2000){
-		rpm_control_out = 2000;
+	if(aux2 <= 1500){
+		px4_arch_gpiowrite(gpio, true);
+		PX4_INFO("high");
+	}else{
+		px4_arch_gpiowrite(gpio, false);
+		PX4_INFO("low");
 	}
 
-	return rpm_control_out;
-
+	}
 }
 
 int Steering_engine::print_usage(const char *reason )
