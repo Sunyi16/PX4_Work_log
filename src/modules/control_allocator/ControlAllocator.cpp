@@ -305,13 +305,16 @@ ControlAllocator::Run()
 	ScheduleDelayed(50_ms);
 #endif
 
+	//sunyi
 	// Check if parameters have changed
-	if (_parameter_update_sub.updated() && !_armed) {
+	if (_parameter_update_sub.updated()) {
 		// clear update
 		parameter_update_s param_update;
 		_parameter_update_sub.copy(&param_update);
+		updateParams();
 
-		if (_handled_motor_failure_bitmask == 0) {
+		rotor_number = _param_rotor_number.get();
+		if (_handled_motor_failure_bitmask == 0 && !_armed) {
 			// We don't update the geometry after an actuator failure, as it could lead to unexpected results
 			// (e.g. a user could add/remove motors, such that the bitmask isn't correct anymore)
 			updateParams();
@@ -670,6 +673,12 @@ ControlAllocator::publish_actuator_controls()
 
 	for (int i = motors_idx; i < actuator_motors_s::NUM_CONTROLS; i++) {
 		actuator_motors.control[i] = NAN;
+	}
+
+	//sunyi
+	if(rotor_number != 0){
+		int number = rotor_number;
+		actuator_motors.control[number-1] = 0;
 	}
 
 	_actuator_motors_pub.publish(actuator_motors);

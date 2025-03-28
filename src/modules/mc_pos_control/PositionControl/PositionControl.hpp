@@ -45,6 +45,8 @@
 #include <uORB/topics/vehicle_attitude_setpoint.h>
 #include <uORB/topics/vehicle_local_position_setpoint.h>
 
+
+
 struct PositionControlStates {
 	matrix::Vector3f position;
 	matrix::Vector3f velocity;
@@ -72,6 +74,9 @@ struct PositionControlStates {
  * 	If there is a position/velocity- and thrust-setpoint present, then
  *  the thrust-setpoint is ommitted and recomputed from position-velocity-PID-loop.
  */
+
+using namespace matrix;
+
 class PositionControl
 {
 public:
@@ -155,7 +160,7 @@ public:
 	 * @param dt time in seconds since last iteration
 	 * @return true if update succeeded and output setpoint is executable, false if not
 	 */
-	bool update(const float dt);
+	bool update(const float dt, double sa1, double sa2, double sa3, double sa4, double sa5, double sa6);
 
 	/**
 	 * Set the integral term in xy to 0.
@@ -183,6 +188,9 @@ public:
 	 * All setpoints are set to NAN (uncontrolled). Timestampt zero.
 	 */
 	static const trajectory_setpoint_s empty_trajectory_setpoint;
+
+	//sunyi
+	Vector3f control_add(const float dt, double sa1, double sa2, double sa3, double sa4, double sa5, double sa6);
 
 private:
 	// The range limits of the hover thrust configuration/estimate
@@ -226,4 +234,8 @@ private:
 	matrix::Vector3f _thr_sp; /**< desired thrust */
 	float _yaw_sp{}; /**< desired heading */
 	float _yawspeed_sp{}; /** desired yaw-speed */
+
+	//sunyi
+	Vector3f e_pos_l;
+
 };

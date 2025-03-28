@@ -41,6 +41,7 @@
 #include <mathlib/mathlib.h>
 #include <px4_platform_common/defines.h>
 #include <geo/geo.h>
+#include "control_add.cpp"
 
 using namespace matrix;
 
@@ -105,13 +106,18 @@ void PositionControl::setInputSetpoint(const trajectory_setpoint_s &setpoint)
 	_yawspeed_sp = setpoint.yawspeed;
 }
 
-bool PositionControl::update(const float dt)
+bool PositionControl::update(const float dt, double sa1, double sa2, double sa3, double sa4, double sa5, double sa6)
 {
 	bool valid = _inputValid();
 
 	if (valid) {
-		_positionControl();
-		_velocityControl(dt);
+		//_positionControl();
+		//_velocityControl(dt);
+		//sunyi
+
+		_thr_sp = control_add(dt, sa1, sa2, sa3, sa4, sa5, sa6);
+		printf("%f", (double)_thr_sp(2));
+
 
 		_yawspeed_sp = PX4_ISFINITE(_yawspeed_sp) ? _yawspeed_sp : 0.f;
 		_yaw_sp = PX4_ISFINITE(_yaw_sp) ? _yaw_sp : _yaw; // TODO: better way to disable yaw control
@@ -213,6 +219,52 @@ void PositionControl::_accelerationControl()
 	collective_thrust = math::min(collective_thrust, -_lim_thr_min);
 	_thr_sp = body_z * collective_thrust;
 }
+
+//sunyi
+Vector3f PositionControl::control_add(const float dt, double sa1, double sa2, double sa3, double sa4, double sa5, double sa6)
+{
+_pos_sp(0) = 0;
+_pos_sp(1) = 0;
+_pos_sp(2) = 3;
+
+if(abs(_pos(0)) >= 0 && abs(_pos(1)) >= 0 && abs(_pos(2)) >= 0){
+	//定义位置误差的积分
+	e_pos_l +=  (_pos_sp - _pos) * dt;
+}
+
+
+
+e_pos_l(2) = math::constrain(e_pos_l(2), -CONSTANTS_ONE_G, CONSTANTS_ONE_G);
+
+double u_o[3];
+
+//printf("%f", (double)_vel(0));
+
+//启动控制器
+sliding_mode_controller(
+    // 输入参数
+    e_pos_l(0), e_pos_l(1), e_pos_l(2),
+    _pos_sp(0), _pos_sp(1), _pos_sp(2),
+    _pos(0), _pos(1), _pos(2),
+    _vel(0), _vel(1), _vel(2),
+    // 滑模参数
+    sa1, sa2, sa3,
+    sa4, sa5, sa6,
+    // 输出参数
+    u_o     // 3维控制输出
+
+);
+
+
+Vector3f u;
+u(0) = u_o[0];
+u(1) = u_o[1];
+u(2) = u_o[2];
+
+return u;
+
+}
+
 
 bool PositionControl::_inputValid()
 {
