@@ -116,7 +116,7 @@ bool PositionControl::update(const float dt, double sa1, double sa2, double sa3,
 		//sunyi
 
 		_thr_sp = control_add(dt, sa1, sa2, sa3, sa4, sa5, sa6);
-		printf("%f", (double)_thr_sp(2));
+		//printf("%f", (double)_thr_sp(2));
 
 
 		_yawspeed_sp = PX4_ISFINITE(_yawspeed_sp) ? _yawspeed_sp : 0.f;
@@ -223,9 +223,36 @@ void PositionControl::_accelerationControl()
 //sunyi
 Vector3f PositionControl::control_add(const float dt, double sa1, double sa2, double sa3, double sa4, double sa5, double sa6)
 {
-_pos_sp(0) = 0;
-_pos_sp(1) = 0;
-_pos_sp(2) = 3;
+//_pos_sp(0) = 0;
+//_pos_sp(1) = 0;
+//_pos_sp(2) = 3;
+static double xd;
+static double yd;
+static double zd;
+
+if(!(abs(_pos_sp(0)) >=0))
+{
+	_pos_sp(0) = xd;
+}else
+{
+	xd = _pos_sp(0);
+}
+
+if(!(abs(_pos_sp(1)) >=0))
+{
+	_pos_sp(1) = yd;
+}else
+{
+	yd = _pos_sp(1);
+}
+
+if(!(abs(_pos_sp(2)) >=0))
+{
+	_pos_sp(2) = zd;
+}else
+{
+	zd = _pos_sp(2);
+}
 
 if(abs(_pos(0)) >= 0 && abs(_pos(1)) >= 0 && abs(_pos(2)) >= 0){
 	//定义位置误差的积分
@@ -238,7 +265,7 @@ e_pos_l(2) = math::constrain(e_pos_l(2), -CONSTANTS_ONE_G, CONSTANTS_ONE_G);
 
 double u_o[3];
 
-//printf("%f", (double)_vel(0));
+printf("%f\n", (double)_pos_sp(2));
 
 //启动控制器
 sliding_mode_controller(
