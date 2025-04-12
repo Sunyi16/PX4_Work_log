@@ -313,7 +313,7 @@ ControlAllocator::Run()
 		_parameter_update_sub.copy(&param_update);
 		updateParams();
 
-		rotor_number = _param_rotor_number.get();
+		rotor_number = _param_rotor_number.get();//sunyi
 		if (_handled_motor_failure_bitmask == 0 && !_armed) {
 			// We don't update the geometry after an actuator failure, as it could lead to unexpected results
 			// (e.g. a user could add/remove motors, such that the bitmask isn't correct anymore)
@@ -680,7 +680,7 @@ ControlAllocator::publish_actuator_controls()
 		int number = rotor_number;
 		actuator_motors.control[number-1] = 0;
 	}
-
+	/************************************ */
 	_actuator_motors_pub.publish(actuator_motors);
 
 	// servos

@@ -38,6 +38,7 @@
 #include <AttitudeControl.hpp>
 
 #include <mathlib/math/Functions.hpp>
+#include "attitudecontrol_add.cpp"
 
 using namespace matrix;
 
@@ -52,8 +53,11 @@ void AttitudeControl::setProportionalGain(const matrix::Vector3f &proportional_g
 	}
 }
 
-matrix::Vector3f AttitudeControl::update(const Quatf &q) const
+matrix::Vector3f AttitudeControl::update(const Quatf &q, double m11, double m13, double m22, double m24, Vector3f angle_vel) const
 {
+	double roll_v = angle_vel(0);
+	double pitch_v = angle_vel(1);
+	double yaw_v = angle_vel(2);
 	Quatf qd = _attitude_setpoint_q;
 
 	// calculate reduced desired attitude neglecting vehicle's yaw to prioritize roll and pitch
@@ -80,6 +84,39 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q) const
 	q_mix(3) = math::constrain(q_mix(3), -1.f, 1.f);
 	qd = qd_red * Quatf(cosf(_yaw_w * acosf(q_mix(0))), 0, 0, sinf(_yaw_w * asinf(q_mix(3))));
 
+	/*sunyi*********************************************************************************/
+	Eulerf angles_d(qd);
+	Eulerf angles(q);
+
+	//设定姿态,来自位置控制器
+	float phi_d = angles_d.phi();
+	float theta_d = angles_d.theta();
+
+	//phi_d = 0;
+	//theta_d = 0;
+
+	double dt = 0.008;
+
+	static double le_phi, le_theta;
+	le_phi += (double)(phi_d - angles.phi()) * dt;
+	le_theta += (double)(theta_d - angles.theta()) * dt;
+
+	double v_hat[2];
+
+	fcn(le_phi, le_theta, (double)angles.phi(), (double)angles.theta(), roll_v, pitch_v,
+         m11, m13, m22, m24, v_hat);
+
+	double L, M;
+	fcn_2(
+    		// 输入参数
+    		6.8e-8,
+    		roll_v, pitch_v, yaw_v,
+    		angles.phi(), angles.theta(),
+    		v_hat,
+    		// 输出参数
+    		&L, &M
+	);
+/********************************************************************************************************** */
 	// quaternion attitude control law, qe is rotation from q to qd
 	const Quatf qe = q.inversed() * qd;
 
@@ -105,6 +142,9 @@ matrix::Vector3f AttitudeControl::update(const Quatf &q) const
 	for (int i = 0; i < 3; i++) {
 		rate_setpoint(i) = math::constrain(rate_setpoint(i), -_rate_limit(i), _rate_limit(i));
 	}
-
+	/*sunyi*************************************************************************/
+	rate_setpoint(0) = L;
+	rate_setpoint(1) = M;
+	/************************************************************ */
 	return rate_setpoint;
 }

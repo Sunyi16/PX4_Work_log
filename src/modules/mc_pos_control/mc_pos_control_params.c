@@ -897,44 +897,46 @@ PARAM_DEFINE_FLOAT(MPC_XY_VEL_ALL, -10.0f);
  */
 PARAM_DEFINE_FLOAT(MPC_Z_VEL_ALL, -3.0f);
 
+//sunyi
+/************************************************************* */
 /**
  *sa1
  * @decimal 2
  * @group Multicopter Position Control
  */
-PARAM_DEFINE_FLOAT(SA1, 0.6f);
+PARAM_DEFINE_FLOAT(SMC_SA11, -1.0f);
 
 /**
  *sa2
  * @decimal 2
  * @group Multicopter Position Control
  */
-PARAM_DEFINE_FLOAT(SA2, 0.6f);
+PARAM_DEFINE_FLOAT(SMC_SA22, -1.0f);
 
 /**
  *sa3
  * @decimal 2
  * @group Multicopter Position Control
  */
-PARAM_DEFINE_FLOAT(SA3, 0.6f);
+PARAM_DEFINE_FLOAT(SMC_SA33, -1.1f);
 
 /**
  *sa4
  * @decimal 2
  * @group Multicopter Position Control
  */
-PARAM_DEFINE_FLOAT(SA4, 0.6f);
+PARAM_DEFINE_FLOAT(SMC_SA14, 1.37f);
 
 /**
  *sa5
  * @decimal 2
  * @group Multicopter Position Control
  */
-PARAM_DEFINE_FLOAT(SA5, 0.6f);
+PARAM_DEFINE_FLOAT(SMC_SA25, 1.37f);
 
 /**
  *sa6
  * @decimal 2
  * @group Multicopter Position Control
  */
-PARAM_DEFINE_FLOAT(SA6, 0.6f);
+PARAM_DEFINE_FLOAT(SMC_SA36, 1.9f);

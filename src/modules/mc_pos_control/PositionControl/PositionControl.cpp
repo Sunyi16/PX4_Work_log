@@ -41,7 +41,7 @@
 #include <mathlib/mathlib.h>
 #include <px4_platform_common/defines.h>
 #include <geo/geo.h>
-#include "control_add.cpp"
+#include "control_add.cpp"//sunyi
 
 using namespace matrix;
 
@@ -225,7 +225,7 @@ Vector3f PositionControl::control_add(const float dt, double sa1, double sa2, do
 {
 //_pos_sp(0) = 0;
 //_pos_sp(1) = 0;
-//_pos_sp(2) = 3;
+//_pos_sp(2) = 0;
 static double xd;
 static double yd;
 static double zd;
@@ -265,7 +265,7 @@ e_pos_l(2) = math::constrain(e_pos_l(2), -CONSTANTS_ONE_G, CONSTANTS_ONE_G);
 
 double u_o[3];
 
-printf("%f\n", (double)_pos_sp(2));
+
 
 //启动控制器
 sliding_mode_controller(
@@ -282,7 +282,7 @@ sliding_mode_controller(
 
 );
 
-
+//printf("%f\n", (double)u_o[2]);
 Vector3f u;
 u(0) = u_o[0];
 u(1) = u_o[1];
@@ -291,7 +291,7 @@ u(2) = u_o[2];
 return u;
 
 }
-
+/************************************************************************* */
 
 bool PositionControl::_inputValid()
 {

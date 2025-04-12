@@ -79,3 +79,5 @@ mc_pos_control start
 # Start Multicopter Land Detector.
 #
 land_detector start multicopter
+#sunyi
+param set ROTOR_INUSE 0

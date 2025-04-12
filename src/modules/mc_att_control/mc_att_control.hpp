@@ -57,6 +57,9 @@
 
 #include <AttitudeControl.hpp>
 
+#include <uORB/topics/vehicle_angular_velocity.h>//sunyi
+#include <uORB/topics/control_add.h>//sunyi
+
 using namespace time_literals;
 
 class MulticopterAttitudeControl : public ModuleBase<MulticopterAttitudeControl>, public ModuleParams,
@@ -96,6 +99,8 @@ private:
 
 	uORB::SubscriptionInterval _parameter_update_sub{ORB_ID(parameter_update), 1_s};
 
+	uORB::SubscriptionCallbackWorkItem _angular_velocity_sub{this, ORB_ID(vehicle_angular_velocity)};//sunyi
+
 	uORB::Subscription _autotune_attitude_control_status_sub{ORB_ID(autotune_attitude_control_status)};
 	uORB::Subscription _manual_control_setpoint_sub{ORB_ID(manual_control_setpoint)};
 	uORB::Subscription _vehicle_attitude_setpoint_sub{ORB_ID(vehicle_attitude_setpoint)};
@@ -108,6 +113,9 @@ private:
 	uORB::Publication<vehicle_rates_setpoint_s>     _vehicle_rates_setpoint_pub{ORB_ID(vehicle_rates_setpoint)};    /**< rate setpoint publication */
 	uORB::Publication<vehicle_attitude_setpoint_s>  _vehicle_attitude_setpoint_pub;
 
+	uORB::Publication<control_add_s>  _control_add_pub{ORB_ID(control_add)};//sunyi
+
+	vehicle_angular_velocity_s	anglar_velocity;//sunyi
 	manual_control_setpoint_s       _manual_control_setpoint {};    /**< manual control setpoint */
 	vehicle_control_mode_s          _vehicle_control_mode {};       /**< vehicle control mode */
 
@@ -123,6 +131,8 @@ private:
 
 	hrt_abstime _last_run{0};
 	hrt_abstime _last_attitude_setpoint{0};
+
+	double m11, m13, m22, m24;
 
 	bool _reset_yaw_sp{true};
 	bool _heading_good_for_control{true}; ///< initialized true to have heading lock when local position never published
@@ -152,7 +162,11 @@ private:
 		(ParamFloat<px4::params::MPC_MANTHR_MIN>)   _param_mpc_manthr_min,      /**< minimum throttle for stabilized */
 		(ParamFloat<px4::params::MPC_THR_MAX>)      _param_mpc_thr_max,         /**< maximum throttle for stabilized */
 		(ParamFloat<px4::params::MPC_THR_HOVER>)    _param_mpc_thr_hover,       /**< throttle at stationary hover */
-		(ParamInt<px4::params::MPC_THR_CURVE>)      _param_mpc_thr_curve        /**< throttle curve behavior */
+		(ParamInt<px4::params::MPC_THR_CURVE>)      _param_mpc_thr_curve,        /**< throttle curve behavior */
+		(ParamFloat<px4::params::SMC_M11>)      _param_m11,
+		(ParamFloat<px4::params::SMC_M13>)      _param_m13,
+		(ParamFloat<px4::params::SMC_M22>)      _param_m22,
+		(ParamFloat<px4::params::SMC_M24>)      _param_m24
 	)
 };
 

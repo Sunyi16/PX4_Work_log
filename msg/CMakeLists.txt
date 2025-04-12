@@ -221,6 +221,7 @@ set(msg_files
 	VtolVehicleStatus.msg
 	Wind.msg
 	YawEstimatorStatus.msg
+	control_add.msg#SUNYI
 )
 list(SORT msg_files)
 

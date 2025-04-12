@@ -160,7 +160,7 @@ public:
 	 * @param dt time in seconds since last iteration
 	 * @return true if update succeeded and output setpoint is executable, false if not
 	 */
-	bool update(const float dt, double sa1, double sa2, double sa3, double sa4, double sa5, double sa6);
+	bool update(const float dt, double sa1, double sa2, double sa3, double sa4, double sa5, double sa6);//sunyi
 
 	/**
 	 * Set the integral term in xy to 0.

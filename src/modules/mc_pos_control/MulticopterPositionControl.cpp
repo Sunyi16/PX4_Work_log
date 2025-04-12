@@ -87,13 +87,15 @@ void MulticopterPositionControl::parameters_update(bool force)
 
 		int num_changed = 0;
 
+		//sunyi
+		/******************************************************* */
 		sa1 = _param_sa1.get();
 		sa2 = _param_sa2.get();
 		sa3 = _param_sa3.get();
 		sa4 = _param_sa4.get();
 		sa5 = _param_sa5.get();
 		sa6 = _param_sa6.get();
-
+		/***************************************************** */
 		if (_param_sys_vehicle_resp.get() >= 0.f) {
 			// make it less sensitive at the lower end
 			float responsiveness = _param_sys_vehicle_resp.get() * _param_sys_vehicle_resp.get();
@@ -544,13 +546,14 @@ void MulticopterPositionControl::Run()
 			_control.setState(states);
 
 			// Run position control
+			//sunyi
 			if (!_control.update(dt, sa1, sa2, sa3, sa4, sa5, sa6)) {
 				// Failsafe
 				_vehicle_constraints = {0, NAN, NAN, false, {}}; // reset constraints
 
 				_control.setInputSetpoint(generateFailsafeSetpoint(vehicle_local_position.timestamp_sample, states, true));
 				_control.setVelocityLimits(_param_mpc_xy_vel_max.get(), _param_mpc_z_vel_max_up.get(), _param_mpc_z_vel_max_dn.get());
-				_control.update(dt, sa1, sa2, sa3, sa4, sa5, sa6);
+				_control.update(dt, sa1, sa2, sa3, sa4, sa5, sa6);//sunyi
 			}
 
 			// Publish internal position control setpoints

@@ -158,3 +158,45 @@ PARAM_DEFINE_FLOAT(MC_YAWRATE_MAX, 200.0f);
  * @group Multicopter Position Control
  */
 PARAM_DEFINE_FLOAT(MC_MAN_TILT_TAU, 0.0f);
+
+/*sunyi**************************************************** */
+/**
+ *
+ *M11
+ *
+ *
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(SMC_M11, -90.0f);
+
+/**
+ *
+ *M13
+ *
+ *
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(SMC_M13, 11.0f);
+
+/**
+ *
+ *M22
+ *
+ *
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(SMC_M22, -90.0f);
+
+/**
+ *
+ *M24
+ *
+ *
+ * @decimal 2
+ * @group Multicopter Position Control
+ */
+PARAM_DEFINE_FLOAT(SMC_M24, 11.0f);
+/*********************************************************************** */

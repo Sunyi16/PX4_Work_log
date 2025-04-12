@@ -83,6 +83,13 @@ MulticopterAttitudeControl::init()
 void
 MulticopterAttitudeControl::parameters_updated()
 {
+	//sunyi
+	/************************************************** */
+	m11 = _param_m11.get();
+	m13 = _param_m13.get();
+	m22 = _param_m22.get();
+	m24 = _param_m24.get();
+	/************************************************************* */
 	// Store some of the parameters in a more convenient way & precompute often-used values
 	_attitude_control.setProportionalGain(Vector3f(_param_mc_roll_p.get(), _param_mc_pitch_p.get(), _param_mc_yaw_p.get()),
 					      _param_mc_yaw_weight.get());
@@ -297,8 +304,24 @@ MulticopterAttitudeControl::Run()
 				_man_roll_input_filter.reset(0.f);
 				_man_pitch_input_filter.reset(0.f);
 			}
+			//sunyi
+			/******************************************************************************* */
+			Vector3f angle_ver;
+			if(_angular_velocity_sub.update(&anglar_velocity)){
+				angle_ver(0) = anglar_velocity.xyz[0];
+				angle_ver(1) = anglar_velocity.xyz[1];
+				angle_ver(2) = anglar_velocity.xyz[2];
+			}
+			//sunyi
+			Vector3f rates_sp = _attitude_control.update(q, m11, m13, m22, m24, angle_ver);
+			control_add_s control_add_a {};
 
-			Vector3f rates_sp = _attitude_control.update(q);
+			control_add_a.timestamp = hrt_absolute_time();
+			control_add_a.roll_u = rates_sp(0);
+			control_add_a.pitch_u = rates_sp(1);
+
+			_control_add_pub.publish(control_add_a);
+			/*************************************************************************************** */
 
 			const hrt_abstime now = hrt_absolute_time();
 			autotune_attitude_control_status_s pid_autotune;

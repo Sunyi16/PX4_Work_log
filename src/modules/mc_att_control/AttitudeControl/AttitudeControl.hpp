@@ -98,7 +98,8 @@ public:
 	 * @param q estimation of the current vehicle attitude unit quaternion
 	 * @return [rad/s] body frame 3D angular rate setpoint vector to be executed by the rate controller
 	 */
-	matrix::Vector3f update(const matrix::Quatf &q) const;
+	//sunyi
+	matrix::Vector3f update(const matrix::Quatf &q, double m11, double m13, double m22, double m24, matrix::Vector3f angle_vel) const;
 
 private:
 	matrix::Vector3f _proportional_gain;
